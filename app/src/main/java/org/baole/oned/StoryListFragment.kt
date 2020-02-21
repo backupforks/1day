@@ -12,6 +12,7 @@ import com.google.android.material.snackbar.Snackbar
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.FirebaseFirestoreException
+import com.google.firebase.firestore.FirebaseFirestoreSettings
 import com.google.firebase.firestore.Query
 import org.baole.oned.adapter.StoryAdapter
 import org.baole.oned.databinding.StoryListFragmentBinding
@@ -44,9 +45,6 @@ class StoryListFragment : StoryFragment() {
         // View model
         mViewModel = ViewModelProvider(this).get(MainActivityViewModel::class.java)
 
-        // Enable Firestore logging
-        FirebaseFirestore.setLoggingEnabled(true)
-
         // Initialize Firestore and the main RecyclerView
         initFirestore()
         initRecyclerView()
@@ -54,7 +52,16 @@ class StoryListFragment : StoryFragment() {
 
     private fun initFirestore() {
         mFirestore = FirebaseFirestore.getInstance()
-        val user = FirebaseAuth.getInstance().currentUser!!
+        val user = FirebaseAuth.getInstance().currentUser
+
+
+        val isPersistent = FirebaseAuth.getInstance().currentUser != null
+        val settings = FirebaseFirestoreSettings.Builder()
+                .setPersistenceEnabled(isPersistent)
+                .build()
+        mFirestore.firestoreSettings = settings
+
+
 
         mQuery = FirestoreUtil.story(mFirestore, user)
                 .orderBy(Story.FIELD_TIMESTAMP, Query.Direction.DESCENDING)

@@ -19,7 +19,6 @@ import org.baole.oned.viewmodel.MainActivityViewModel
 import java.util.*
 
 class MainActivity : AppCompatActivity() {
-    private lateinit var mFirestore: FirebaseFirestore
     private lateinit var mViewModel: MainActivityViewModel
     private lateinit var binding: MainActivityBinding
 
@@ -33,25 +32,9 @@ class MainActivity : AppCompatActivity() {
 
         // Enable Firestore logging
         FirebaseFirestore.setLoggingEnabled(BuildConfig.DEBUG)
-        initFirestore()
+        addStoryFragment()
+
    }
-
-    private fun initFirestore() {
-        mFirestore = FirebaseFirestore.getInstance()
-    }
-
-    public override fun onStart() {
-        super.onStart()
-
-        // Start sign in if necessary
-        if (shouldStartSignIn()) {
-            startSignIn()
-            return
-        } else {
-            addStoryFragment()
-        }
-
-    }
 
     private fun addStoryFragment() {
         val fragment = StoryListFragment()
@@ -60,31 +43,34 @@ class MainActivity : AppCompatActivity() {
 
 
 
-    private fun onAddItemsClicked() {
-        // Get a reference to the restaurants collection
-        val user = FirebaseAuth.getInstance().currentUser!!
-        val bookRef = mFirestore!!.collection(user.uid).document("book").collection("stories")
-        val ts = Calendar.getInstance().timeInMillis
-
-        for (i in 0..9) {
-            val story = Story()
-            story.timestamp = ts - i * DateUtils.DAY_IN_MILLIS
-            story.day = DateUtil.day2key(story.timestamp)
-            story.content = "a random generated content ${story.timestamp}"
-            bookRef.document(DateUtil.day2key(story.timestamp)).set(story)
-        }
-    }
-
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
         menuInflater.inflate(R.menu.menu_main, menu)
         return super.onCreateOptionsMenu(menu)
     }
 
+    override fun onPrepareOptionsMenu(menu: Menu): Boolean {
+        val isSignIn = isSignIn()
+
+        if (isSignIn) {
+            menu.findItem(R.id.menu_sign_in).isVisible = false
+        } else {
+            menu.findItem(R.id.menu_sign_out).isVisible = false
+        }
+
+        return super.onPrepareOptionsMenu(menu)
+    }
+
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
-            R.id.menu_add_items -> onAddItemsClicked()
+//            R.id.menu_add_items -> onAddItemsClicked()
             R.id.menu_sign_out -> {
                 AuthUI.getInstance().signOut(this)
+                FirebaseFirestore.getInstance().let {
+                    it.clearPersistence()
+                    it.terminate()
+                }
+            }
+            R.id.menu_sign_in -> {
                 startSignIn()
             }
         }
@@ -94,16 +80,17 @@ class MainActivity : AppCompatActivity() {
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
         if (requestCode == RC_SIGN_IN) {
-            mViewModel!!.isSigningIn = false
+            mViewModel.isSigningIn = false
+            invalidateOptionsMenu()
 
-            if (resultCode != Activity.RESULT_OK && shouldStartSignIn()) {
+            if (resultCode != Activity.RESULT_OK && isSignIn()) {
                 startSignIn()
             }
         }
     }
 
-    private fun shouldStartSignIn(): Boolean {
-        return !mViewModel.isSigningIn && FirebaseAuth.getInstance().currentUser == null
+    private fun isSignIn(): Boolean {
+        return FirebaseAuth.getInstance().currentUser != null
     }
 
     private fun startSignIn() {

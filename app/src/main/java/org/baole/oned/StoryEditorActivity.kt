@@ -29,7 +29,7 @@ class StoryEditorActivity : AppCompatActivity() {
         binding.date.text = DateUtil.key2display(day)
 
         mFirestore = FirebaseFirestore.getInstance()
-        val user = FirebaseAuth.getInstance().currentUser!!
+        val user = FirebaseAuth.getInstance().currentUser
         storyRef = FirestoreUtil.day(mFirestore, user, day)
         storyRef.addSnapshotListener { documentSnapshot, firebaseFirestoreException ->
             documentSnapshot?.toObject(Story::class.java)?.let {

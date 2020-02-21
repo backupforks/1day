@@ -8,16 +8,17 @@ import org.baole.oned.model.Book
 import org.baole.oned.model.Story
 
 object FirestoreUtil {
+    const val DEF_UID = "default"
 
-    fun book(fs: FirebaseFirestore, user: FirebaseUser): DocumentReference {
-        return fs.collection(user.uid).document(Book.PATH)
+    fun book(fs: FirebaseFirestore, user: FirebaseUser?): DocumentReference {
+        return fs.collection(user?.uid ?: DEF_UID).document(Book.PATH)
     }
 
-    fun story(fs: FirebaseFirestore, user: FirebaseUser): CollectionReference {
+    fun story(fs: FirebaseFirestore, user: FirebaseUser?): CollectionReference {
         return book(fs, user).collection(Story.PATH)
     }
 
-    fun day(fs: FirebaseFirestore, user: FirebaseUser, day: String): DocumentReference {
+    fun day(fs: FirebaseFirestore, user: FirebaseUser?, day: String): DocumentReference {
         return story(fs, user).document(day)
     }
 
