@@ -109,7 +109,7 @@ class MainActivity : AppCompatActivity() {
     private fun startSignIn() {
         // Sign in with FirebaseUI
         val intent = AuthUI.getInstance().createSignInIntentBuilder()
-                .setAvailableProviders(listOf(AuthUI.IdpConfig.EmailBuilder().build()))
+                .setAvailableProviders(listOf(AuthUI.IdpConfig.GoogleBuilder().build()))
                 .setIsSmartLockEnabled(false)
                 .build()
 

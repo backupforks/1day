@@ -11,4 +11,5 @@ object DateUtil {
     }
 
     fun day2key(): String = day2key(System.currentTimeMillis())
+
 }

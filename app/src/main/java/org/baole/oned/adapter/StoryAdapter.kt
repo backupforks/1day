@@ -9,6 +9,9 @@ import com.google.firebase.firestore.Query
 import org.baole.oned.R
 import org.baole.oned.databinding.StoryListItemBinding
 import org.baole.oned.model.Story
+import java.text.SimpleDateFormat
+import java.time.Month
+import java.util.*
 
 /**
  * RecyclerView adapter for a list of story.
@@ -61,9 +64,9 @@ class StoryItemViewHolder(itemView: View, private val mItemListener: (Story) -> 
     override fun bind(snapshot: DocumentSnapshot?) {
 
         snapshot?.toObject(Story::class.java)?.let {
-
-            binding.day.text = "01"
-            binding.month.text = "Feb"
+            val day = Date(it.timestamp)
+            binding.day.text = SimpleDateFormat("dd").format(day)
+            binding.month.text = SimpleDateFormat("MMM").format(day)
             binding.content.text = it.content
             itemView.tag = it
         }

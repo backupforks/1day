@@ -39,6 +39,17 @@ android {
     dataBinding {
         enabled = true
     }
+
+    compileOptions {
+        sourceCompatibility java_version
+        targetCompatibility java_version
+        encoding "UTF-8"
+    }
+
+    kotlinOptions {
+        jvmTarget = java_version
+    }
+
 }
 
 dependencies {
