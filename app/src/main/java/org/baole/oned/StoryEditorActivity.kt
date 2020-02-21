@@ -2,7 +2,6 @@ package org.baole.oned
 
 import android.content.Context
 import android.os.Bundle
-import android.util.Log
 import android.view.inputmethod.InputMethodManager
 import androidx.appcompat.app.AppCompatActivity
 import androidx.databinding.DataBindingUtil
@@ -12,6 +11,7 @@ import com.google.firebase.firestore.FirebaseFirestore
 import org.baole.oned.databinding.StoryEditorActivityBinding
 import org.baole.oned.model.Story
 import org.baole.oned.util.DateUtil
+import org.baole.oned.util.FirestoreUtil
 
 
 class StoryEditorActivity : AppCompatActivity() {
@@ -26,19 +26,21 @@ class StoryEditorActivity : AppCompatActivity() {
         binding = DataBindingUtil.setContentView(this, R.layout.story_editor_activity)
 
         day = intent.getStringExtra(Story.FIELD_DAY) ?: DateUtil.day2key()
+        binding.date.text = DateUtil.key2display(day)
+
         mFirestore = FirebaseFirestore.getInstance()
         val user = FirebaseAuth.getInstance().currentUser!!
-        storyRef = mFirestore.collection(user.uid).document("book").collection("stories").document(day)
+        storyRef = FirestoreUtil.day(mFirestore, user, day)
         storyRef.addSnapshotListener { documentSnapshot, firebaseFirestoreException ->
             documentSnapshot?.toObject(Story::class.java)?.let {
                 binding.editor.setText(it.content)
+                story = it
             }
         }
 
         binding.save.setOnClickListener {
             story?.let {
-                it.content = binding.editor.text.toString()
-                storyRef.update("content", binding.editor.text.toString()).addOnCompleteListener { finish() }
+                storyRef.update(Story.FIELD_CONTENT, binding.editor.text.toString()).addOnCompleteListener { finish() }
             } ?: kotlin.run {
                 val story = Story()
                 story.day = DateUtil.day2key()

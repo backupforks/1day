@@ -1,5 +1,6 @@
 package org.baole.oned.util
 
+import java.text.SimpleDateFormat
 import java.util.*
 
 object DateUtil {
@@ -11,5 +12,10 @@ object DateUtil {
     }
 
     fun day2key(): String = day2key(System.currentTimeMillis())
+
+    fun key2display(key: String): String {
+        val time = SimpleDateFormat("yyyy_MM_dd").parse(key).time
+        return SimpleDateFormat("MMM dd").format(Date(time))
+    }
 
 }

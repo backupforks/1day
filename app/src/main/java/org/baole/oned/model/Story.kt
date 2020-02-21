@@ -6,6 +6,9 @@ class Story {
     var content: String = ""
 
     companion object {
+        const val PATH = "stories"
         const val FIELD_DAY = "day"
+        const val FIELD_TIMESTAMP = "timestamp"
+        const val FIELD_CONTENT = "content"
     }
 }

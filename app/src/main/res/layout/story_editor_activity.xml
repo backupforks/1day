@@ -9,14 +9,16 @@
         <androidx.appcompat.widget.AppCompatTextView
             android:layout_width="match_parent"
             android:id="@+id/date"
+            android:paddingStart="10dp"
+            android:gravity="start|center_vertical"
             style="@style/TextAppearance.MaterialComponents.Headline6"
-            android:layout_height="wrap_content"/>
+            android:layout_height="48dp"/>
 
 
         <androidx.appcompat.widget.AppCompatEditText
             android:layout_width="match_parent"
             android:gravity="top"
-            android:padding="5dp"
+            android:padding="10dp"
             android:id="@+id/editor"
             android:hint="@string/story_hint"
             android:inputType="textAutoCorrect|textCapSentences|textLongMessage|textMultiLine"

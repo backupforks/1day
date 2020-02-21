@@ -5,4 +5,8 @@ class Book {
     var authorName: String = ""
     var email: String = ""
     var name: String = ""
+
+    companion object {
+        const val PATH = "book"
+    }
 }

@@ -17,6 +17,7 @@ import org.baole.oned.adapter.StoryAdapter
 import org.baole.oned.databinding.StoryListFragmentBinding
 import org.baole.oned.model.Story
 import org.baole.oned.util.DateUtil
+import org.baole.oned.util.FirestoreUtil
 import org.baole.oned.viewmodel.MainActivityViewModel
 
 
@@ -55,8 +56,8 @@ class StoryListFragment : StoryFragment() {
         mFirestore = FirebaseFirestore.getInstance()
         val user = FirebaseAuth.getInstance().currentUser!!
 
-        mQuery = mFirestore.collection(user.uid).document("book").collection("stories")
-                .orderBy("timestamp", Query.Direction.DESCENDING)
+        mQuery = FirestoreUtil.story(mFirestore, user)
+                .orderBy(Story.FIELD_TIMESTAMP, Query.Direction.DESCENDING)
                 .limit(LIMIT.toLong())
     }
 
