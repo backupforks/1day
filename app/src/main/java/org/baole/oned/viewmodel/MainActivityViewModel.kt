@@ -24,12 +24,6 @@ import org.baole.oned.Filters
  */
 
 class MainActivityViewModel : ViewModel() {
-
-    var isSigningIn: Boolean = false
-    var filters: Filters? = null
-
-    init {
-        isSigningIn = false
-        filters = Filters.default
-    }
+    var isSigningIn = false
+    var filters = Filters.default
 }

@@ -1,140 +1,43 @@
-/**
- * Copyright 2017 Google Inc. All Rights Reserved.
- *
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
 package org.baole.oned
 
 import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
-import android.text.Html
-import android.util.Log
+import android.text.format.DateUtils
 import android.view.Menu
 import android.view.MenuItem
-import android.view.View
-import android.view.ViewGroup
-import android.widget.TextView
-import android.widget.Toast
-
 import androidx.appcompat.app.AppCompatActivity
-import androidx.appcompat.widget.Toolbar
-import androidx.lifecycle.ViewModelProviders
-import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
-
+import androidx.databinding.DataBindingUtil
+import androidx.lifecycle.ViewModelProvider
 import com.firebase.ui.auth.AuthUI
-import com.google.android.material.snackbar.Snackbar
 import com.google.firebase.auth.FirebaseAuth
-import org.baole.oned.adapter.RestaurantAdapter
-import org.baole.oned.model.Restaurant
-import org.baole.oned.util.RestaurantUtil
-import org.baole.oned.viewmodel.MainActivityViewModel
-import com.google.firebase.firestore.CollectionReference
-import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.FirebaseFirestore
-import com.google.firebase.firestore.FirebaseFirestoreException
-import com.google.firebase.firestore.Query
+import org.baole.oned.databinding.MainActivityBinding
+import org.baole.oned.model.Story
+import org.baole.oned.util.DateUtil
+import org.baole.oned.viewmodel.MainActivityViewModel
+import java.util.*
 
-import java.util.Collections
-
-class MainActivity : AppCompatActivity(), View.OnClickListener, FilterDialogFragment.FilterListener, RestaurantAdapter.OnRestaurantSelectedListener {
-
-    private var mToolbar: Toolbar? = null
-    private var mCurrentSearchView: TextView? = null
-    private var mCurrentSortByView: TextView? = null
-    private var mRestaurantsRecycler: RecyclerView? = null
-    private var mEmptyView: ViewGroup? = null
-
-    private var mFirestore: FirebaseFirestore? = null
-    private var mQuery: Query? = null
-
-    private var mFilterDialog: FilterDialogFragment? = null
-    private var mAdapter: RestaurantAdapter? = null
-
-    private var mViewModel: MainActivityViewModel? = null
+class MainActivity : AppCompatActivity() {
+    private lateinit var mFirestore: FirebaseFirestore
+    private lateinit var mViewModel: MainActivityViewModel
+    private lateinit var binding: MainActivityBinding
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
+        binding = DataBindingUtil.setContentView(this, R.layout.main_activity)
 
-        mToolbar = findViewById(R.id.toolbar)
-        setSupportActionBar(mToolbar)
-
-        mCurrentSearchView = findViewById(R.id.text_current_search)
-        mCurrentSortByView = findViewById(R.id.text_current_sort_by)
-        mRestaurantsRecycler = findViewById(R.id.recycler_restaurants)
-        mEmptyView = findViewById(R.id.view_empty)
-
-        findViewById<View>(R.id.filter_bar).setOnClickListener(this)
-        findViewById<View>(R.id.button_clear_filter).setOnClickListener(this)
-
+        setSupportActionBar(binding.toolbar)
         // View model
-        mViewModel = ViewModelProviders.of(this).get(MainActivityViewModel::class.java)
+        mViewModel = ViewModelProvider(this).get(MainActivityViewModel::class.java)
 
         // Enable Firestore logging
-        FirebaseFirestore.setLoggingEnabled(true)
-
-        // Initialize Firestore and the main RecyclerView
+        FirebaseFirestore.setLoggingEnabled(BuildConfig.DEBUG)
         initFirestore()
-        initRecyclerView()
-
-        // Filter Dialog
-        mFilterDialog = FilterDialogFragment()
-    }
+   }
 
     private fun initFirestore() {
-        // TODO(developer): Implement
         mFirestore = FirebaseFirestore.getInstance()
-
-        // Get the 50 highest rated restaurants
-        mQuery = mFirestore!!.collection("restaurants")
-                .orderBy("avgRating", Query.Direction.DESCENDING)
-                .limit(LIMIT.toLong())
-    }
-
-    private fun initRecyclerView() {
-        if (mQuery == null) {
-            Log.w(TAG, "No query, not initializing RecyclerView")
-        }
-
-        val listener = this
-
-        mAdapter = object : RestaurantAdapter(mQuery!!, listener) {
-
-            override fun onDataChanged() {
-                // Show/hide content if the query returns empty.
-                if (itemCount == 0) {
-                    mRestaurantsRecycler!!.visibility = View.GONE
-                    mEmptyView!!.visibility = View.VISIBLE
-                } else {
-                    mRestaurantsRecycler!!.visibility = View.VISIBLE
-                    mEmptyView!!.visibility = View.GONE
-                }
-            }
-
-            override fun onError(e: FirebaseFirestoreException) {
-                // Show a snackbar on errors
-                Snackbar.make(findViewById(android.R.id.content),
-                        "Error: check logs for info.", Snackbar.LENGTH_LONG).show()
-            }
-        }
-
-        mRestaurantsRecycler!!.layoutManager = LinearLayoutManager(this)
-        mRestaurantsRecycler!!.adapter = mAdapter
     }
 
     public override fun onStart() {
@@ -144,81 +47,32 @@ class MainActivity : AppCompatActivity(), View.OnClickListener, FilterDialogFrag
         if (shouldStartSignIn()) {
             startSignIn()
             return
+        } else {
+            addStoryFragment()
         }
 
-        // Apply filters
-        onFilter(mViewModel!!.filters!!)
-
-        // Start listening for Firestore updates
-        if (mAdapter != null) {
-            mAdapter!!.startListening()
-        }
     }
 
-    public override fun onStop() {
-        super.onStop()
-        if (mAdapter != null) {
-            mAdapter!!.stopListening()
-        }
+    private fun addStoryFragment() {
+        val fragment = StoryListFragment()
+        supportFragmentManager.beginTransaction().add(R.id.content, fragment).commitAllowingStateLoss()
     }
+
 
 
     private fun onAddItemsClicked() {
         // Get a reference to the restaurants collection
-        val restaurants = mFirestore!!.collection("restaurants")
+        val user = FirebaseAuth.getInstance().currentUser!!
+        val bookRef = mFirestore!!.collection(user.uid).document("book").collection("stories")
+        val ts = Calendar.getInstance().timeInMillis
 
         for (i in 0..9) {
-            // Get a random Restaurant POJO
-            val restaurant = RestaurantUtil.getRandom(this)
-
-            // Add a new document to the restaurants collection
-            restaurants.add(restaurant)
+            val story = Story()
+            story.timestamp = ts - i * DateUtils.DAY_IN_MILLIS
+            story.day = DateUtil.day2key(story.timestamp)
+            story.content = "a random generated content ${story.timestamp}"
+            bookRef.document(DateUtil.day2key(story.timestamp)).set(story)
         }
-    }
-
-    override fun onFilter(filters: Filters) {
-        // Construct query basic query
-        var query: Query = mFirestore!!.collection("restaurants")
-
-        // Category (equality filter)
-        if (filters.hasCategory()) {
-            query = query.whereEqualTo("category", filters.category)
-        }
-
-        // City (equality filter)
-        if (filters.hasCity()) {
-            query = query.whereEqualTo("city", filters.city)
-        }
-
-        // Price (equality filter)
-        if (filters.hasPrice()) {
-            query = query.whereEqualTo("price", filters.price)
-        }
-
-        // Sort by (orderBy with direction)
-        if (filters.hasSortBy()) {
-            query = query.orderBy(filters.sortBy!!, filters.sortDirection!!)
-        }
-
-        // Limit items
-        query = query.limit(LIMIT.toLong())
-        // Update the query
-        mQuery = query
-        mAdapter!!.setQuery(query)
-
-        // Set header
-        mCurrentSearchView!!.text = Html.fromHtml(filters.getSearchDescription(this))
-        mCurrentSortByView!!.text = filters.getOrderDescription(this)
-
-        // Save filters
-        mViewModel!!.filters = filters
-
-        // Set header
-        mCurrentSearchView!!.text = Html.fromHtml(filters.getSearchDescription(this))
-        mCurrentSortByView!!.text = filters.getOrderDescription(this)
-
-        // Save filters
-        mViewModel!!.filters = filters
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
@@ -248,34 +102,8 @@ class MainActivity : AppCompatActivity(), View.OnClickListener, FilterDialogFrag
         }
     }
 
-    override fun onClick(v: View) {
-        when (v.id) {
-            R.id.filter_bar -> onFilterClicked()
-            R.id.button_clear_filter -> onClearFilterClicked()
-        }
-    }
-
-    fun onFilterClicked() {
-        // Show the dialog containing filter options
-        mFilterDialog!!.show(supportFragmentManager, FilterDialogFragment.TAG)
-    }
-
-    fun onClearFilterClicked() {
-        mFilterDialog!!.resetFilters()
-
-        onFilter(Filters.default)
-    }
-
-    override fun onRestaurantSelected(restaurant: DocumentSnapshot) {
-        // Go to the details page for the selected restaurant
-        val intent = Intent(this, RestaurantDetailActivity::class.java)
-        intent.putExtra(RestaurantDetailActivity.KEY_RESTAURANT_ID, restaurant.id)
-
-        startActivity(intent)
-    }
-
     private fun shouldStartSignIn(): Boolean {
-        return !mViewModel!!.isSigningIn && FirebaseAuth.getInstance().currentUser == null
+        return !mViewModel.isSigningIn && FirebaseAuth.getInstance().currentUser == null
     }
 
     private fun startSignIn() {
@@ -286,11 +114,7 @@ class MainActivity : AppCompatActivity(), View.OnClickListener, FilterDialogFrag
                 .build()
 
         startActivityForResult(intent, RC_SIGN_IN)
-        mViewModel!!.isSigningIn = true
-    }
-
-    private fun showTodoToast() {
-        Toast.makeText(this, "TODO: Implement", Toast.LENGTH_SHORT).show()
+        mViewModel.isSigningIn = true
     }
 
     companion object {
@@ -299,6 +123,5 @@ class MainActivity : AppCompatActivity(), View.OnClickListener, FilterDialogFrag
 
         private val RC_SIGN_IN = 9001
 
-        private val LIMIT = 50
     }
 }

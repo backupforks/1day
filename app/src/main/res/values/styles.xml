@@ -9,13 +9,19 @@
         <item name="android:textColorSecondary">@color/greySecondary</item>
 
         <item name="android:actionOverflowButtonStyle">@style/AppTheme.Overflow</item>
+
+        <item name="android:navigationBarColor">@color/colorPrimaryDark</item>
+        <item name="android:statusBarColor">@color/colorPrimaryDark</item>
+        <item name="android:enforceStatusBarContrast">true</item>
+        <item name="android:windowLightStatusBar">true</item>
+        <item name="android:windowLightNavigationBar">true</item>
     </style>
 
     <style name="AppTheme.Activity" parent="AppTheme" />
 
     <style name="AppTheme.Overflow" parent="Base.Widget.AppCompat.ActionButton.Overflow">
         <item name="android:padding">0dp</item>
-        <item name="android:tint">@android:color/white</item>
+        <item name="android:tint">@android:color/darker_gray</item>
     </style>
 
     <style name="AppTheme.FormLabel">

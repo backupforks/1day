@@ -42,22 +42,20 @@ import java.util.ArrayList
  * See the adapter classes in FirebaseUI (https://github.com/firebase/FirebaseUI-Android/tree/master/firestore) for a
  * more efficient implementation of a Firestore RecyclerView Adapter.
  */
-abstract class FirestoreAdapter<VH : RecyclerView.ViewHolder>(private var mQuery: Query?) : RecyclerView.Adapter<VH>(), EventListener<QuerySnapshot> {
+abstract class FirestoreAdapter<VH : RecyclerView.ViewHolder>(private var mQuery: Query, private var headerItemCount: Int = 0) : RecyclerView.Adapter<VH>(), EventListener<QuerySnapshot> {
     private var mRegistration: ListenerRegistration? = null
 
     private val mSnapshots = ArrayList<DocumentSnapshot>()
 
     fun startListening() {
-        if (mQuery != null && mRegistration == null) {
-            mRegistration = mQuery!!.addSnapshotListener(this)
+        if (mRegistration == null) {
+            mRegistration = mQuery.addSnapshotListener(this)
         }
     }
 
     fun stopListening() {
-        if (mRegistration != null) {
-            mRegistration!!.remove()
-            mRegistration = null
-        }
+        mRegistration?.remove()
+        mRegistration = null
 
         mSnapshots.clear()
         notifyDataSetChanged()
@@ -77,11 +75,19 @@ abstract class FirestoreAdapter<VH : RecyclerView.ViewHolder>(private var mQuery
     }
 
     override fun getItemCount(): Int {
-        return mSnapshots.size
+        return mSnapshots.size + headerItemCount
     }
 
     protected fun getSnapshot(index: Int): DocumentSnapshot {
-        return mSnapshots[index]
+        return mSnapshots[index - headerItemCount]
+    }
+
+    override fun getItemViewType(position: Int): Int {
+        if (position < headerItemCount) {
+            return ITEM_TYPE_HEADER
+        } else {
+            return ITEM_TYPE_DATA
+        }
     }
 
     protected open fun onError(e: FirebaseFirestoreException) {}
@@ -114,17 +120,17 @@ abstract class FirestoreAdapter<VH : RecyclerView.ViewHolder>(private var mQuery
 
     protected fun onDocumentAdded(change: DocumentChange) {
         mSnapshots.add(change.newIndex, change.document)
-        notifyItemInserted(change.newIndex)
+        notifyItemInserted(change.newIndex + headerItemCount)
     }
 
     protected fun onDocumentModified(change: DocumentChange) {
         if (change.oldIndex == change.newIndex) {
             // Item changed but remained in same position
             mSnapshots[change.oldIndex] = change.document
-            notifyItemChanged(change.oldIndex)
+            notifyItemChanged(change.oldIndex + headerItemCount)
         } else {
             // Item changed and changed position
-            mSnapshots.removeAt(change.oldIndex)
+            mSnapshots.removeAt(change.oldIndex + headerItemCount)
             mSnapshots.add(change.newIndex, change.document)
             notifyItemMoved(change.oldIndex, change.newIndex)
         }
@@ -132,10 +138,13 @@ abstract class FirestoreAdapter<VH : RecyclerView.ViewHolder>(private var mQuery
 
     protected fun onDocumentRemoved(change: DocumentChange) {
         mSnapshots.removeAt(change.oldIndex)
-        notifyItemRemoved(change.oldIndex)
+        notifyItemRemoved(change.oldIndex + headerItemCount)
     }
 
     companion object {
+
+        const val ITEM_TYPE_HEADER = 0
+        const val ITEM_TYPE_DATA = 1
 
         private val TAG = "Firestore Adapter"
     }

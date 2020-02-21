@@ -17,9 +17,6 @@ package org.baole.oned
 
 import android.content.Context
 import android.text.TextUtils
-
-import org.baole.oned.model.Restaurant
-import org.baole.oned.util.RestaurantUtil
 import com.google.firebase.firestore.Query
 
 /**
@@ -54,7 +51,7 @@ class Filters {
 
         if (category == null && city == null) {
             desc.append("<b>")
-            desc.append(context.getString(R.string.all_restaurants))
+//            desc.append(context.getString(R.string.all_restaurants))
             desc.append("</b>")
         }
 
@@ -74,24 +71,9 @@ class Filters {
             desc.append("</b>")
         }
 
-        if (price > 0) {
-            desc.append(" for ")
-            desc.append("<b>")
-            desc.append(RestaurantUtil.getPriceString(price))
-            desc.append("</b>")
-        }
+
 
         return desc.toString()
-    }
-
-    fun getOrderDescription(context: Context): String {
-        return if (Restaurant.FIELD_PRICE == sortBy) {
-            context.getString(R.string.sorted_by_price)
-        } else if (Restaurant.FIELD_POPULARITY == sortBy) {
-            context.getString(R.string.sorted_by_popularity)
-        } else {
-            context.getString(R.string.sorted_by_rating)
-        }
     }
 
     companion object {
@@ -99,7 +81,6 @@ class Filters {
         val default: Filters
             get() {
                 val filters = Filters()
-                filters.sortBy = Restaurant.FIELD_AVG_RATING
                 filters.sortDirection = Query.Direction.DESCENDING
 
                 return filters
