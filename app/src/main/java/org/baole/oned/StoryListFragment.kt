@@ -61,10 +61,8 @@ class StoryListFragment : StoryFragment() {
                 .build()
         mFirestore.firestoreSettings = settings
 
-
-
         mQuery = FirestoreUtil.story(mFirestore, user)
-                .orderBy(Story.FIELD_TIMESTAMP, Query.Direction.DESCENDING)
+                .orderBy(Story.FIELD_DAY, Query.Direction.DESCENDING)
                 .limit(LIMIT.toLong())
     }
 

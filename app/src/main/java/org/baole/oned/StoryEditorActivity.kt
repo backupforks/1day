@@ -4,9 +4,12 @@ import android.content.Context
 import android.os.Bundle
 import android.view.inputmethod.InputMethodManager
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.os.bundleOf
 import androidx.databinding.DataBindingUtil
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.firestore.DocumentReference
+import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.FirebaseFirestore
 import org.baole.oned.databinding.StoryEditorActivityBinding
 import org.baole.oned.model.Story
@@ -17,22 +20,36 @@ import org.baole.oned.util.FirestoreUtil
 class StoryEditorActivity : AppCompatActivity() {
     private lateinit var mFirestore: FirebaseFirestore
     private lateinit var binding: StoryEditorActivityBinding
-    var story: Story? = null
     lateinit var day: String
-    lateinit var storyRef: DocumentReference
+    var storyDocumentSnapshot: DocumentSnapshot? = null
+    var story: Story? = null
+    var firebaesUser: FirebaseUser? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = DataBindingUtil.setContentView(this, R.layout.story_editor_activity)
 
+        setSupportActionBar(binding.toolbar)
+        binding.toolbar.setOnClickListener {
+            val newFragment = DatePickerFragment()
+            newFragment.arguments = bundleOf(Story.FIELD_DAY to day)
+            newFragment.onKeySelected = {
+                day = it
+                onDayUpdated()
+            }
+            newFragment.show(supportFragmentManager, "datePicker")
+
+        }
+
         day = intent.getStringExtra(Story.FIELD_DAY) ?: DateUtil.day2key()
-        binding.date.text = DateUtil.key2display(day)
+        onDayUpdated()
 
         mFirestore = FirebaseFirestore.getInstance()
-        val user = FirebaseAuth.getInstance().currentUser
-        storyRef = FirestoreUtil.day(mFirestore, user, day)
-        storyRef.addSnapshotListener { documentSnapshot, firebaseFirestoreException ->
-            documentSnapshot?.toObject(Story::class.java)?.let {
+        firebaesUser = FirebaseAuth.getInstance().currentUser
+
+        FirestoreUtil.dayQuery(mFirestore, firebaesUser, day).addSnapshotListener { querySnapshot, firebaseFirestoreException ->
+            storyDocumentSnapshot = querySnapshot?.documents?.getOrNull(0)
+            storyDocumentSnapshot?.toObject(Story::class.java)?.let {
                 binding.editor.setText(it.content)
                 binding.editor.setSelection(binding.editor.length())
                 story = it
@@ -44,12 +61,16 @@ class StoryEditorActivity : AppCompatActivity() {
         }
 
         binding.save.setOnClickListener {
-            story?.let {
-                updateStory(binding.editor.text.toString())
+            storyDocumentSnapshot?.let {
+                updateStory(it, binding.editor.text.toString())
             } ?: kotlin.run {
                 createStory(binding.editor.text.toString())
             }
         }
+    }
+
+    private fun onDayUpdated() {
+        title = DateUtil.key2display(day)
     }
 
     private fun createStory(text: String) {
@@ -58,14 +79,16 @@ class StoryEditorActivity : AppCompatActivity() {
         story.timestamp = System.currentTimeMillis()
         story.content = text
 
-        storyRef.set(story).addOnCompleteListener {
+        FirestoreUtil.story(mFirestore, firebaesUser).document().set(story).addOnCompleteListener {
             finish()
         }.addOnFailureListener { it.printStackTrace() }
     }
 
-    private fun updateStory(newText: String) {
-        if (newText != story?.content) {
-            storyRef.update(Story.FIELD_CONTENT, newText).addOnCompleteListener { finish() }
+    private fun updateStory(snapshot: DocumentSnapshot, newText: String) {
+        if (newText != story?.content || day != story?.day) {
+            FirestoreUtil.day(mFirestore, firebaesUser, snapshot.id).update(mapOf(Story.FIELD_CONTENT to newText,
+                    Story.FIELD_DAY to day
+                    )).addOnCompleteListener { finish() }
         } else {
             finish()
         }
