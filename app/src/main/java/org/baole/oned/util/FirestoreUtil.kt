@@ -11,7 +11,8 @@ object FirestoreUtil {
     const val DEF_UID = "default"
 
     fun book(fs: FirebaseFirestore, user: FirebaseUser?): DocumentReference {
-        return fs.collection(user?.uid ?: DEF_UID).document(Book.PATH)
+        return fs.collection(Book.PATH).document(user?.uid ?: DEF_UID)
+//        return fs.collection(user?.uid ?: DEF_UID).document(Book.PATH)
     }
 
     fun story(fs: FirebaseFirestore, user: FirebaseUser?): CollectionReference {

@@ -34,30 +34,41 @@ class StoryEditorActivity : AppCompatActivity() {
         storyRef.addSnapshotListener { documentSnapshot, firebaseFirestoreException ->
             documentSnapshot?.toObject(Story::class.java)?.let {
                 binding.editor.setText(it.content)
+                binding.editor.setSelection(binding.editor.length())
                 story = it
+            } ?: kotlin.run {
+                binding.editor.requestFocus()
+                val imm = getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+                imm.showSoftInput(binding.editor, InputMethodManager.SHOW_FORCED)
             }
         }
 
         binding.save.setOnClickListener {
             story?.let {
-                storyRef.update(Story.FIELD_CONTENT, binding.editor.text.toString()).addOnCompleteListener { finish() }
+                updateStory(binding.editor.text.toString())
             } ?: kotlin.run {
-                val story = Story()
-                story.day = DateUtil.day2key()
-                story.timestamp = System.currentTimeMillis()
-                story.content = binding.editor.text.toString()
-
-                storyRef.set(story).addOnCompleteListener {
-                    finish()
-                }
+                createStory(binding.editor.text.toString())
             }
         }
     }
 
-    override fun onStart() {
-        super.onStart()
-        val imm = getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
-        imm.showSoftInput(binding.editor, InputMethodManager.SHOW_IMPLICIT)
+    private fun createStory(text: String) {
+        val story = Story()
+        story.day = day
+        story.timestamp = System.currentTimeMillis()
+        story.content = text
+
+        storyRef.set(story).addOnCompleteListener {
+            finish()
+        }.addOnFailureListener { it.printStackTrace() }
+    }
+
+    private fun updateStory(newText: String) {
+        if (newText != story?.content) {
+            storyRef.update(Story.FIELD_CONTENT, newText).addOnCompleteListener { finish() }
+        } else {
+            finish()
+        }
     }
 
     companion object {
