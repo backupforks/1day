@@ -54,7 +54,6 @@ class StoryListFragment : StoryFragment() {
         mFirestore = FirebaseFirestore.getInstance()
         val user = FirebaseAuth.getInstance().currentUser
 
-
         val isPersistent = FirebaseAuth.getInstance().currentUser != null
         val settings = FirebaseFirestoreSettings.Builder()
                 .setPersistenceEnabled(isPersistent)
@@ -65,6 +64,7 @@ class StoryListFragment : StoryFragment() {
                 .orderBy(Story.FIELD_DAY, Query.Direction.DESCENDING)
                 .limit(LIMIT.toLong())
     }
+
 
     private fun initRecyclerView() {
         if (mQuery == null) {

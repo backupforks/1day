@@ -9,4 +9,11 @@
     <string name="save">Save</string>
     <string name="preview">Preview</string>
     <string name="story_hint">How is your day?</string>
+
+    <string name="backup_restore">Backup &amp; restore</string>
+    <string name="backup">Backup</string>
+    <string name="last_backup">Last backup: %s</string>
+    <string name="no_backup">No backup</string>
+    <string name="restore">Restore</string>
+
 </resources>

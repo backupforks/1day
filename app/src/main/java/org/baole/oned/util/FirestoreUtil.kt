@@ -9,7 +9,7 @@ import org.baole.oned.model.Book
 import org.baole.oned.model.Story
 
 object FirestoreUtil {
-    const val DEF_UID = "default"
+    const val DEF_UID = "local"
 
     fun book(fs: FirebaseFirestore, user: FirebaseUser?): DocumentReference {
         return fs.collection(Book.PATH).document(user?.uid ?: DEF_UID)

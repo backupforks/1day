@@ -72,6 +72,7 @@ dependencies {
     implementation 'androidx.multidex:multidex:2.0.1'
     implementation 'androidx.recyclerview:recyclerview:1.1.0'
     implementation 'androidx.constraintlayout:constraintlayout:2.0.0-beta4'
+    implementation 'androidx.preference:preference:1.1.0'
 
     // Android architecture components
     implementation 'androidx.lifecycle:lifecycle-runtime:2.2.0'

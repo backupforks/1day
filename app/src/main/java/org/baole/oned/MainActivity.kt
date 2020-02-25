@@ -36,9 +36,13 @@ class MainActivity : AppCompatActivity() {
 
    }
 
-    private fun addStoryFragment() {
+    private fun addStoryFragment(replace: Boolean = false) {
         val fragment = StoryListFragment()
-        supportFragmentManager.beginTransaction().add(R.id.content, fragment).commitAllowingStateLoss()
+        if (replace) {
+            supportFragmentManager.beginTransaction().replace(R.id.content, fragment).commitAllowingStateLoss()
+        } else {
+            supportFragmentManager.beginTransaction().add(R.id.content, fragment).commitAllowingStateLoss()
+        }
     }
 
 
@@ -66,12 +70,18 @@ class MainActivity : AppCompatActivity() {
             R.id.menu_sign_out -> {
                 AuthUI.getInstance().signOut(this)
                 FirebaseFirestore.getInstance().let {
-                    it.clearPersistence()
                     it.terminate()
+                    it.clearPersistence()
                 }
+
+                addStoryFragment(true)
             }
             R.id.menu_sign_in -> {
                 startSignIn()
+            }
+
+            R.id.menu_settings -> {
+                startActivity(Intent(this, SettingActivity::class.java))
             }
         }
         return super.onOptionsItemSelected(item)
@@ -85,8 +95,15 @@ class MainActivity : AppCompatActivity() {
 
             if (resultCode != Activity.RESULT_OK && isSignIn()) {
                 startSignIn()
+            } else {
+                addStoryFragment(true)
+                moveStoriesFromLocal2Cloud()
             }
         }
+    }
+
+    private fun moveStoriesFromLocal2Cloud() {
+        //TODO to be impl
     }
 
     private fun isSignIn(): Boolean {

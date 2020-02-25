@@ -12,7 +12,6 @@
             android:id="@+id/recycler_stories"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="@android:color/white"
             tools:listitem="@layout/story_list_item" />
 
         <!-- Empty list (pizza guy) view -->
@@ -36,7 +35,7 @@
                 android:layout_height="wrap_content"
                 android:gravity="center"
                 android:text="@string/message_no_results"
-                android:textColor="@color/greyDisabled" />
+                 />
 
         </LinearLayout>
 

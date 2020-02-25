@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <PreferenceCategory android:title="@string/backup_restore">
+
+        <Preference
+            app:key="backup"
+            app:title="@string/backup" />
+
+        <Preference
+            app:key="restore"
+            app:title="@string/restore" />
+    </PreferenceCategory>
+</PreferenceScreen>
