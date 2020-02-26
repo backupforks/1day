@@ -3,38 +3,55 @@ package org.baole.oned
 import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
-import android.text.format.DateUtils
+import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import androidx.appcompat.app.AppCompatActivity
-import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.ViewModelProvider
 import com.firebase.ui.auth.AuthUI
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.Query
 import org.baole.oned.databinding.MainActivityBinding
 import org.baole.oned.model.Story
-import org.baole.oned.util.DateUtil
+import org.baole.oned.util.FirestoreUtil
 import org.baole.oned.viewmodel.MainActivityViewModel
-import java.util.*
 
 class MainActivity : AppCompatActivity() {
+    private lateinit var mFirestore: FirebaseFirestore
     private lateinit var mViewModel: MainActivityViewModel
     private lateinit var binding: MainActivityBinding
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        binding = DataBindingUtil.setContentView(this, R.layout.main_activity)
+        binding = MainActivityBinding.inflate(layoutInflater)
+        setContentView(binding.root)
 
         setSupportActionBar(binding.toolbar)
         // View model
         mViewModel = ViewModelProvider(this).get(MainActivityViewModel::class.java)
 
         // Enable Firestore logging
+        setupFirestore()
         FirebaseFirestore.setLoggingEnabled(BuildConfig.DEBUG)
         addStoryFragment()
+        Log.d(TAG, "firestore: ${FirebaseFirestore.getInstance()}")
+    }
 
-   }
+    private fun setupFirestore() {
+        mFirestore = FirebaseFirestore.getInstance()
+        val isPersistent = FirebaseAuth.getInstance().currentUser != null
+        if (isPersistent) {
+            mFirestore.enableNetwork().addOnFailureListener {
+                it.printStackTrace()
+            }
+        } else {
+            mFirestore.disableNetwork().addOnFailureListener {
+                it.printStackTrace()
+            }
+        }
+    }
 
     private fun addStoryFragment(replace: Boolean = false) {
         val fragment = StoryListFragment()
@@ -44,7 +61,6 @@ class MainActivity : AppCompatActivity() {
             supportFragmentManager.beginTransaction().add(R.id.content, fragment).commitAllowingStateLoss()
         }
     }
-
 
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
@@ -66,18 +82,23 @@ class MainActivity : AppCompatActivity() {
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
-//            R.id.menu_add_items -> onAddItemsClicked()
             R.id.menu_sign_out -> {
-                AuthUI.getInstance().signOut(this)
-                FirebaseFirestore.getInstance().let {
-                    it.terminate()
-                    it.clearPersistence()
-                }
+                AuthUI.getInstance().signOut(this).addOnSuccessListener {
+                    FirebaseFirestore.getInstance().let { ff ->
+                        addStoryFragment(true)
 
-                addStoryFragment(true)
+//                        ff.clearPersistence().addOnSuccessListener {
+//                            ff.terminate().addOnSuccessListener {
+//                                addStoryFragment(true)
+//                            }
+//                        }
+//                        it.terminate()
+                    }
+
+                }
             }
             R.id.menu_sign_in -> {
-                startSignIn()
+                backupStoriesAndSignIn()
             }
 
             R.id.menu_settings -> {
@@ -87,23 +108,57 @@ class MainActivity : AppCompatActivity() {
         return super.onOptionsItemSelected(item)
     }
 
+    var backupStories = mutableListOf<Story>()
+    private fun backupStoriesAndSignIn() {
+        Log.d(TAG, "data: backupStoriesAndSignIn")
+        FirestoreUtil.story(mFirestore, null)
+                .addSnapshotListener { querySnapshot, firebaseFirestoreException ->
+                    querySnapshot?.documents?.forEach {
+                        it.toObject(Story::class.java)?.let { story ->
+                            Log.d(TAG, "data: $story")
+                            backupStories.add(story)
+                        }
+                    }
+                    startSignIn()
+                }
+    }
+
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
         if (requestCode == RC_SIGN_IN) {
-            mViewModel.isSigningIn = false
             invalidateOptionsMenu()
 
             if (resultCode != Activity.RESULT_OK && isSignIn()) {
                 startSignIn()
             } else {
+                moveStoriesFromLocal2Cloud(FirebaseAuth.getInstance().currentUser!!)
+                setupFirestore()
                 addStoryFragment(true)
-                moveStoriesFromLocal2Cloud()
             }
         }
     }
 
-    private fun moveStoriesFromLocal2Cloud() {
-        //TODO to be impl
+    private fun moveStoriesFromLocal2Cloud(user: FirebaseUser) {
+        Log.d(TAG, "data: moveStoriesFromLocal2Cloud")
+//        FirestoreUtil.story(mFirestore, null)
+//                .addSnapshotListener { querySnapshot, firebaseFirestoreException ->
+//                    val authedStories = FirestoreUtil.story(mFirestore, user).document()
+//                    querySnapshot?.documents?.forEach {
+//                        it.toObject(Story::class.java)?.let { story ->
+//                            Log.d(TAG, "data: $story")
+//                            authedStories.set(story)
+//                        }
+//                    }
+//                }
+
+        val stories = mutableListOf<Story>()
+        stories.addAll(backupStories)
+        backupStories.clear()
+        stories.forEach {
+            Log.d(TAG, "data: move $it")
+            FirestoreUtil.story(mFirestore, user).document().set(it)
+        }
+
     }
 
     private fun isSignIn(): Boolean {
@@ -112,13 +167,13 @@ class MainActivity : AppCompatActivity() {
 
     private fun startSignIn() {
         // Sign in with FirebaseUI
+        Log.d(TAG, "startSignIn")
         val intent = AuthUI.getInstance().createSignInIntentBuilder()
                 .setAvailableProviders(listOf(AuthUI.IdpConfig.GoogleBuilder().build()))
                 .setIsSmartLockEnabled(false)
                 .build()
 
         startActivityForResult(intent, RC_SIGN_IN)
-        mViewModel.isSigningIn = true
     }
 
     companion object {

@@ -52,14 +52,10 @@ class StoryListFragment : StoryFragment() {
 
     private fun initFirestore() {
         mFirestore = FirebaseFirestore.getInstance()
+        Log.d(TAG, "firestore: $mFirestore")
+
+
         val user = FirebaseAuth.getInstance().currentUser
-
-        val isPersistent = FirebaseAuth.getInstance().currentUser != null
-        val settings = FirebaseFirestoreSettings.Builder()
-                .setPersistenceEnabled(isPersistent)
-                .build()
-        mFirestore.firestoreSettings = settings
-
         mQuery = FirestoreUtil.story(mFirestore, user)
                 .orderBy(Story.FIELD_DAY, Query.Direction.DESCENDING)
                 .limit(LIMIT.toLong())

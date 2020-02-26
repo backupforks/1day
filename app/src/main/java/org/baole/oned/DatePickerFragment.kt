@@ -29,6 +29,6 @@ class DatePickerFragment : DialogFragment(), DatePickerDialog.OnDateSetListener 
     }
 
     override fun onDateSet(view: DatePicker, year: Int, month: Int, day: Int) {
-        onKeySelected?.invoke(DateUtil.day2key(year, month, day))
+        onKeySelected?.invoke(DateUtil.day2key(year, month + 1, day))
     }
 }

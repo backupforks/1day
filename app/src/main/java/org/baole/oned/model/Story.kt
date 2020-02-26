@@ -11,4 +11,8 @@ class Story {
         const val FIELD_TIMESTAMP = "timestamp"
         const val FIELD_CONTENT = "content"
     }
+
+    override fun toString(): String {
+        return """{"day": "$day", "content": "$content", "timestamp": $timestamp}"""
+    }
 }
