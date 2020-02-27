@@ -9,11 +9,15 @@
         android:id="@+id/toolbar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        app:logo="@drawable/ic_restaurant_white_24px"
+        app:logo="@drawable/ic_toolbar"
         app:title="@string/app_name" />
 
     <FrameLayout
         android:id="@+id/content"
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
+
+    <include
+        android:id="@+id/view_empty"
+        layout="@layout/story_list_empty_view" />
 </LinearLayout>

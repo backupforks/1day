@@ -1,12 +1,11 @@
 package org.baole.oned
 
-import android.app.Activity
 import android.content.Intent
-import android.net.nsd.NsdManager
 import android.os.Bundle
 import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
+import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
 import com.firebase.ui.auth.AuthUI
@@ -14,7 +13,6 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.ListenerRegistration
-import com.google.firebase.firestore.Query
 import org.baole.oned.databinding.MainActivityBinding
 import org.baole.oned.model.Story
 import org.baole.oned.util.FirestoreUtil
@@ -23,26 +21,26 @@ import org.baole.oned.viewmodel.MainActivityViewModel
 class MainActivity : AppCompatActivity() {
     private lateinit var mFirestore: FirebaseFirestore
     private lateinit var mViewModel: MainActivityViewModel
-    private lateinit var binding: MainActivityBinding
+    private lateinit var mBinding: MainActivityBinding
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        binding = MainActivityBinding.inflate(layoutInflater)
-        setContentView(binding.root)
+        mBinding = MainActivityBinding.inflate(layoutInflater)
+        setContentView(mBinding.root)
 
-        setSupportActionBar(binding.toolbar)
-        // View model
+        setSupportActionBar(mBinding.toolbar)
         mViewModel = ViewModelProvider(this).get(MainActivityViewModel::class.java)
 
         // Enable Firestore logging
         setupFirestore()
-        FirebaseFirestore.setLoggingEnabled(BuildConfig.DEBUG)
+        initEmptyView()
         addStoryFragment()
         Log.d(TAG, "firestore: ${FirebaseFirestore.getInstance()}")
     }
 
     private fun setupFirestore() {
         mFirestore = FirebaseFirestore.getInstance()
+        FirebaseFirestore.setLoggingEnabled(BuildConfig.DEBUG)
         val isPersistent = FirebaseAuth.getInstance().currentUser != null
         if (isPersistent) {
             mFirestore.enableNetwork().addOnFailureListener {
@@ -56,14 +54,8 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun addStoryFragment(replace: Boolean = false) {
-        val fragment = StoryListFragment()
-        if (replace) {
-            supportFragmentManager.beginTransaction().replace(R.id.content, fragment).commitAllowingStateLoss()
-        } else {
-            supportFragmentManager.beginTransaction().add(R.id.content, fragment).commitAllowingStateLoss()
-        }
+        supportFragmentManager.beginTransaction().replace(R.id.content, StoryListFragment()).commitAllowingStateLoss()
     }
-
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
         menuInflater.inflate(R.menu.menu_main, menu)
@@ -88,12 +80,14 @@ class MainActivity : AppCompatActivity() {
                 AuthUI.getInstance().signOut(this).addOnSuccessListener {
                     FirebaseFirestore.getInstance().let { ff ->
                         addStoryFragment(true)
+                        updateEmptyView()
                         invalidateOptionsMenu()
                     }
                 }
             }
             R.id.menu_sign_in -> {
                 backupStoriesAndSignIn()
+                updateEmptyView()
             }
 
             R.id.menu_settings -> {
@@ -160,6 +154,39 @@ class MainActivity : AppCompatActivity() {
                 .build()
 
         startActivityForResult(intent, RC_SIGN_IN)
+    }
+
+
+    private fun initEmptyView() {
+        mBinding.viewEmpty.signIn.setOnClickListener {
+            backupStoriesAndSignIn()
+        }
+
+        mBinding.viewEmpty.newStory.setOnClickListener {
+            newStory()
+        }
+
+        updateEmptyView()
+    }
+
+    private fun updateEmptyView() {
+        if (FirebaseAuth.getInstance().currentUser != null) {
+            mBinding.viewEmpty.signIn.visibility = View.INVISIBLE
+        }
+    }
+
+    private fun newStory() {
+        startActivity(Intent(this, StoryEditorActivity::class.java).putExtra(FirestoreUtil.FIELD_ID, ""))
+    }
+
+    fun showEmptyView(visible: Boolean) {
+        if (visible) {
+            mBinding.content.visibility = View.GONE
+            mBinding.viewEmpty.viewEmpty.visibility = View.VISIBLE
+        } else {
+            mBinding.content.visibility = View.VISIBLE
+            mBinding.viewEmpty.viewEmpty.visibility = View.GONE
+        }
     }
 
     companion object {

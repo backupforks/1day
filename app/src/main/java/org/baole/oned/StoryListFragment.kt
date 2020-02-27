@@ -50,20 +50,6 @@ class StoryListFragment : StoryFragment() {
         // Initialize Firestore and the main RecyclerView
         initFirestore()
         initRecyclerView()
-        initEmptyView()
-    }
-
-    private fun initEmptyView() {
-        binding.signIn.setOnClickListener {
-            (activity as MainActivity).backupStoriesAndSignIn()
-        }
-
-        binding.newStory.setOnClickListener {
-            newStory()
-        }
-        if (mFirebaseUser != null) {
-            binding.signIn.visibility = View.INVISIBLE
-        }
     }
 
     private fun initFirestore() {
@@ -90,11 +76,13 @@ class StoryListFragment : StoryFragment() {
             override fun onDataChanged() {
                 // Show/hide content if the query returns empty.
                 if (itemCount <= 1) {
-                    binding.recyclerStories.visibility = View.GONE
-                    binding.viewEmpty.visibility = View.VISIBLE
+                    main()?.showEmptyView(true)
+//                    binding.recyclerStories.visibility = View.GONE
+//                    binding.viewEmpty.viewEmpty.visibility = View.VISIBLE
                 } else {
-                    binding.recyclerStories.visibility = View.VISIBLE
-                    binding.viewEmpty.visibility = View.GONE
+                    main()?.showEmptyView(false)
+//                    binding.recyclerStories.visibility = View.VISIBLE
+//                    binding.viewEmpty.viewEmpty.visibility = View.GONE
                 }
             }
 
