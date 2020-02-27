@@ -4,7 +4,6 @@
     <string name="sign_out">Sign Out</string>
     <string name="sign_in">Sign In</string>
     <string name="settings">Settings</string>
-    <string name="message_no_results">Oops, couldn\'t find any results\nthat matched your filter</string>
 
     <string name="save">Save</string>
     <string name="preview">Preview</string>
@@ -18,5 +17,6 @@
 
     <string name="delete">Delete</string>
     <string name="clear">Clear</string>
+    <string name="error_load_data">Error: can not load data</string>
 
 </resources>

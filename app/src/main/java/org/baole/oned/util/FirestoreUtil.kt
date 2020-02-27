@@ -9,6 +9,7 @@ import org.baole.oned.model.Book
 import org.baole.oned.model.Story
 
 object FirestoreUtil {
+    const val FIELD_ID = "id"
     const val DEF_UID = "local"
 
     fun book(fs: FirebaseFirestore, user: FirebaseUser?): DocumentReference {
@@ -19,8 +20,8 @@ object FirestoreUtil {
         return book(fs, user).collection(Story.PATH)
     }
 
-    fun day(fs: FirebaseFirestore, user: FirebaseUser?, day: String): DocumentReference {
-        return story(fs, user).document(day)
+    fun day(fs: FirebaseFirestore, user: FirebaseUser?, id: String): DocumentReference {
+        return story(fs, user).document(id)
     }
     fun dayQuery(fs: FirebaseFirestore, user: FirebaseUser?, day: String): Query {
         return story(fs, user).whereEqualTo(Story.FIELD_DAY, day)

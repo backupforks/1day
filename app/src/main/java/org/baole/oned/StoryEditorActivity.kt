@@ -22,50 +22,29 @@ import org.baole.oned.util.FirestoreUtil
 class StoryEditorActivity : AppCompatActivity() {
     private lateinit var mFirestore: FirebaseFirestore
     private lateinit var mBinding: StoryEditorActivityBinding
-    lateinit var mDay: String
+    lateinit var mStory: Story
     var mStoryDocumentSnapshot: DocumentSnapshot? = null
-    var mStory: Story? = null
     var mFirebaesUser: FirebaseUser? = null
+    var mNewDay: String? = null
+    lateinit var mStoryId: String
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         mBinding = StoryEditorActivityBinding.inflate(layoutInflater)
         setContentView(mBinding.root)
         setSupportActionBar(mBinding.toolbar)
+
         mBinding.toolbar.setOnClickListener {
             val newFragment = DatePickerFragment()
-            newFragment.arguments = bundleOf(Story.FIELD_DAY to mDay)
+            newFragment.arguments = bundleOf(Story.FIELD_DAY to mStory.day)
             newFragment.onKeySelected = {
-                mDay = it
-                onDayUpdated()
+                onDaySelected(it)
             }
             newFragment.show(supportFragmentManager, "datePicker")
-
         }
-
-        mDay = intent.getStringExtra(Story.FIELD_DAY) ?: DateUtil.day2key()
-        onDayUpdated()
 
         mFirestore = FirebaseFirestore.getInstance()
-        Log.d(TAG, "firestore: isPersistenceEnabled=${mFirestore.firestoreSettings.isPersistenceEnabled}")
-        Log.d(TAG, "firestore: $mFirestore")
-
         mFirebaesUser = FirebaseAuth.getInstance().currentUser
-
-        FirestoreUtil.dayQuery(mFirestore, mFirebaesUser, mDay).addSnapshotListener { querySnapshot, firebaseFirestoreException ->
-            mStoryDocumentSnapshot = querySnapshot?.documents?.getOrNull(0)
-
-            mStoryDocumentSnapshot?.toObject(Story::class.java)?.let {
-                mBinding.editor.setText(it.content)
-                mBinding.editor.setSelection(mBinding.editor.length())
-                mStory = it
-            } ?: kotlin.run {
-                mBinding.editor.requestFocus()
-                val imm = getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
-                imm.showSoftInput(mBinding.editor, 0)
-            }
-        }
-
         mBinding.save.setOnClickListener {
             mStoryDocumentSnapshot?.let {
                 updateStory(it, mBinding.editor.text.toString())
@@ -73,18 +52,51 @@ class StoryEditorActivity : AppCompatActivity() {
                 createStory(mBinding.editor.text.toString())
             }
         }
+
+        queryStory()
     }
 
-    private fun onDayUpdated() {
-        title = DateUtil.key2display(mDay)
+    private fun queryStory() {
+        mStoryId = intent.getStringExtra(FirestoreUtil.FIELD_ID) ?: throw RuntimeException("No ${FirestoreUtil.FIELD_ID} found")
+        Log.w(TAG, "storyId: $mStoryId")
+        if (mStoryId.isEmpty()) {
+            onDaySelected(DateUtil.day2key())
+        } else {
+            FirestoreUtil.day(mFirestore, mFirebaesUser, mStoryId).addSnapshotListener { documentSnapshot, firebaseFirestoreException ->
+                onStorySnapshotUpdated(documentSnapshot)
+            }
+        }
+    }
+
+    private fun onDaySelected(day: String) {
+        mNewDay = day
+        FirestoreUtil.dayQuery(mFirestore, mFirebaesUser, day).addSnapshotListener { querySnapshot, firebaseFirestoreException ->
+            onStorySnapshotUpdated(querySnapshot?.documents?.getOrNull(0))
+        }
+    }
+
+    private fun onStorySnapshotUpdated(documentSnapshot: DocumentSnapshot?) {
+        mStoryDocumentSnapshot = documentSnapshot
+        mStoryDocumentSnapshot?.toObject(Story::class.java)?.let {
+            setStory(it)
+            mStory = it
+            mBinding.editor.setSelection(mBinding.editor.length())
+        } ?: kotlin.run {
+            setStory(Story(mNewDay ?: DateUtil.day2key(), ""))
+            mBinding.editor.requestFocus()
+            val imm = getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+            imm.showSoftInput(mBinding.editor, 0)
+        }
+    }
+
+    private fun setStory(story: Story) {
+        mStory = story
+        title = DateUtil.key2display(story.day)
+        mBinding.editor.setText(story.content)
     }
 
     private fun createStory(text: String) {
-        val story = Story()
-        story.day = mDay
-        story.timestamp = System.currentTimeMillis()
-        story.content = text
-
+        val story = Story(mStory.day, text)
         val task = FirestoreUtil.story(mFirestore, mFirebaesUser).document().set(story)
         if (isSignedIn()) {
             finish()
@@ -96,12 +108,12 @@ class StoryEditorActivity : AppCompatActivity() {
     }
 
     private fun updateStory(snapshot: DocumentSnapshot, newText: String) {
-        if (mDay != mStory?.day) {
+        if (mNewDay != mStory.day) {
             createStory(newText)
-        } else if (newText != mStory?.content) {
-            Log.d(TAG, "firestore: update =${snapshot.id} -> ${mDay}/${newText}")
+        } else if (newText != mStory.content) {
+            Log.d(TAG, "firestore: update =${snapshot.id} -> ${mNewDay}/${newText}")
             val task = FirestoreUtil.day(mFirestore, mFirebaesUser, snapshot.id).update(mapOf(Story.FIELD_CONTENT to newText,
-                    Story.FIELD_DAY to mDay
+                    Story.FIELD_DAY to mNewDay
             ))
             if (isSignedIn()) {
                 finish()

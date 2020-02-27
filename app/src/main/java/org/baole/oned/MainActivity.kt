@@ -2,6 +2,7 @@ package org.baole.oned
 
 import android.app.Activity
 import android.content.Intent
+import android.net.nsd.NsdManager
 import android.os.Bundle
 import android.util.Log
 import android.view.Menu
@@ -12,6 +13,7 @@ import com.firebase.ui.auth.AuthUI
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.ListenerRegistration
 import com.google.firebase.firestore.Query
 import org.baole.oned.databinding.MainActivityBinding
 import org.baole.oned.model.Story
@@ -86,15 +88,8 @@ class MainActivity : AppCompatActivity() {
                 AuthUI.getInstance().signOut(this).addOnSuccessListener {
                     FirebaseFirestore.getInstance().let { ff ->
                         addStoryFragment(true)
-
-//                        ff.clearPersistence().addOnSuccessListener {
-//                            ff.terminate().addOnSuccessListener {
-//                                addStoryFragment(true)
-//                            }
-//                        }
-//                        it.terminate()
+                        invalidateOptionsMenu()
                     }
-
                 }
             }
             R.id.menu_sign_in -> {
@@ -109,16 +104,21 @@ class MainActivity : AppCompatActivity() {
     }
 
     var backupStories = mutableListOf<Story>()
-    private fun backupStoriesAndSignIn() {
+    var backupListener: ListenerRegistration? = null
+
+    fun backupStoriesAndSignIn() {
         Log.d(TAG, "data: backupStoriesAndSignIn")
-        FirestoreUtil.story(mFirestore, null)
+        backupListener = FirestoreUtil.story(mFirestore, null)
                 .addSnapshotListener { querySnapshot, firebaseFirestoreException ->
+                    backupListener?.remove()
                     querySnapshot?.documents?.forEach {
                         it.toObject(Story::class.java)?.let { story ->
                             Log.d(TAG, "data: $story")
                             backupStories.add(story)
                         }
                     }
+                    Log.d(TAG, "data:  backup data size: ${backupStories.size}")
+
                     startSignIn()
                 }
     }
@@ -127,10 +127,7 @@ class MainActivity : AppCompatActivity() {
         super.onActivityResult(requestCode, resultCode, data)
         if (requestCode == RC_SIGN_IN) {
             invalidateOptionsMenu()
-
-            if (resultCode != Activity.RESULT_OK && isSignIn()) {
-                startSignIn()
-            } else {
+            if (isSignIn()) {
                 moveStoriesFromLocal2Cloud(FirebaseAuth.getInstance().currentUser!!)
                 setupFirestore()
                 addStoryFragment(true)
@@ -139,18 +136,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun moveStoriesFromLocal2Cloud(user: FirebaseUser) {
-        Log.d(TAG, "data: moveStoriesFromLocal2Cloud")
-//        FirestoreUtil.story(mFirestore, null)
-//                .addSnapshotListener { querySnapshot, firebaseFirestoreException ->
-//                    val authedStories = FirestoreUtil.story(mFirestore, user).document()
-//                    querySnapshot?.documents?.forEach {
-//                        it.toObject(Story::class.java)?.let { story ->
-//                            Log.d(TAG, "data: $story")
-//                            authedStories.set(story)
-//                        }
-//                    }
-//                }
-
+        Log.d(TAG, "data: moveStoriesFromLocal2Cloud ${backupStories.size}")
         val stories = mutableListOf<Story>()
         stories.addAll(backupStories)
         backupStories.clear()

@@ -10,29 +10,56 @@
         android:id="@+id/recycler_stories"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        tools:listitem="@layout/story_list_item" />
+        tools:listitem="@layout/story_list_item"
+        tools:visibility="gone" />
 
     <!-- Empty list (pizza guy) view -->
     <LinearLayout
         android:id="@+id/view_empty"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
         android:gravity="center"
         android:orientation="vertical"
         android:visibility="gone"
-        tools:visibility="gone">
+        tools:visibility="visible">
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="0.3" />
 
         <ImageView
             android:layout_width="wrap_content"
-            android:layout_height="150dp"
-            android:src="@drawable/pizza_monster" />
+            android:layout_height="wrap_content"
+            android:src="@mipmap/ic_launcher" />
 
-        <TextView
-            style="@style/TextAppearance.MaterialComponents.Body1"
-            android:layout_width="wrap_content"
+        <androidx.appcompat.widget.AppCompatTextView
+            style="@style/TextAppearance.AppCompat.Subhead"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:gravity="center"
-            android:text="@string/message_no_results" />
+            android:id="@+id/new_story"
+            android:padding="10dp"
+            android:background="?attr/selectableItemBackground"
+            android:layout_marginTop="50dp"
+            android:text="@string/story_hint" />
+
+        <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/sign_in"
+            style="@style/TextAppearance.MaterialComponents.Body1"
+            android:background="?attr/selectableItemBackground"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:gravity="center"
+            android:padding="10dp"
+            android:text="@string/sign_in"
+            android:textAllCaps="true" />
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="0.7" />
 
     </LinearLayout>
 

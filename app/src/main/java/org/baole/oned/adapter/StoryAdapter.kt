@@ -17,7 +17,7 @@ import java.util.*
 /**
  * RecyclerView adapter for a list of story.
  */
-open class StoryAdapter(query: Query, private val mHeaderListener: () -> Unit, private val mItemListener: (Story) -> Unit) : FirestoreAdapter<StoryViewHolder>(query, 1) {
+open class StoryAdapter(query: Query, private val mHeaderListener: () -> Unit, private val mItemListener: (DocumentSnapshot) -> Unit) : FirestoreAdapter<StoryViewHolder>(query, 1) {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): StoryViewHolder {
         val inflater = LayoutInflater.from(parent.context)
@@ -51,13 +51,13 @@ class StoryHeaderViewHolder(itemView: View, private val mHeaderListener: () -> U
     }
 }
 
-class StoryItemViewHolder(itemView: View, private val mItemListener: (Story) -> Unit) : StoryViewHolder(itemView) {
+class StoryItemViewHolder(itemView: View, private val mItemListener: (DocumentSnapshot) -> Unit) : StoryViewHolder(itemView) {
     var binding = StoryListItemBinding.bind(itemView)
 
     init {
         itemView.setOnClickListener {
             itemView.tag?.let {
-                mItemListener.invoke(it as Story)
+                mItemListener.invoke(it as DocumentSnapshot)
             }
         }
     }
@@ -69,7 +69,7 @@ class StoryItemViewHolder(itemView: View, private val mItemListener: (Story) -> 
             binding.day.text = SimpleDateFormat("dd").format(day)
             binding.month.text = SimpleDateFormat("MMM").format(day)
             binding.content.text = it.content
-            itemView.tag = it
+            itemView.tag = snapshot
         }
     }
 }
