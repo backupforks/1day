@@ -1,4 +1,4 @@
-package org.baole.oned.adapter
+package org.baole.oned.story.list
 
 import android.view.LayoutInflater
 import android.view.View
@@ -7,13 +7,12 @@ import androidx.recyclerview.widget.RecyclerView
 import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.Query
 import org.baole.oned.R
+import org.baole.oned.adapter.FirestoreAdapter
 import org.baole.oned.databinding.StoryListItemBinding
 import org.baole.oned.model.Story
 import org.baole.oned.util.DateUtil
 import org.baole.oned.util.TextUtil
 import java.text.SimpleDateFormat
-import java.time.Month
-import java.util.*
 
 /**
  * RecyclerView adapter for a list of story.

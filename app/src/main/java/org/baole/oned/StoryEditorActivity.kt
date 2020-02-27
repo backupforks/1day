@@ -15,6 +15,7 @@ import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.FirebaseFirestore
 import org.baole.oned.databinding.StoryEditorActivityBinding
 import org.baole.oned.model.Story
+import org.baole.oned.util.AppState
 import org.baole.oned.util.DateUtil
 import org.baole.oned.util.FirestoreUtil
 
@@ -82,12 +83,12 @@ class StoryEditorActivity : AppCompatActivity() {
             mStory = it
             mBinding.editor.setSelection(mBinding.editor.length())
         } ?: kotlin.run {
-            val story = Story()
-            story.day = mNewDay ?: DateUtil.day2key()
-            story.content = ""
-            story.timestamp = System.currentTimeMillis()
-            setStory(story)
-//            setStory(Story(mNewDay ?: DateUtil.day2key(), ""))
+//            val story = Story()
+//            story.day = mNewDay ?: DateUtil.day2key()
+//            story.content = ""
+//            story.timestamp = System.currentTimeMillis()
+//            setStory(story)
+            setStory(Story(mNewDay ?: DateUtil.day2key(), ""))
             mBinding.editor.requestFocus()
             val imm = getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
             imm.showSoftInput(mBinding.editor, 0)
@@ -101,11 +102,11 @@ class StoryEditorActivity : AppCompatActivity() {
     }
 
     private fun createStory(text: String) {
-//        val story = Story(mStory.day, text)
-        val story = Story()
-        story.day = mStory.day
-        story.content = text
-        story.timestamp = System.currentTimeMillis()
+        val story = Story(mStory.day, text)
+//        val story = Story()
+//        story.day = mStory.day
+//        story.content = text
+//        story.timestamp = System.currentTimeMillis()
 
         val task = FirestoreUtil.story(mFirestore, mFirebaesUser).document().set(story)
         if (isSignedIn()) {
@@ -115,6 +116,8 @@ class StoryEditorActivity : AppCompatActivity() {
                 finish()
             }.addOnFailureListener { it.printStackTrace() }
         }
+
+        AppState.get(this).markLastStoryTimestamp()
     }
 
     private fun updateStory(snapshot: DocumentSnapshot, newText: String) {

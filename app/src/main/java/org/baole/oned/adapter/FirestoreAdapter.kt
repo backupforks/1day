@@ -42,7 +42,7 @@ import java.util.ArrayList
  * See the adapter classes in FirebaseUI (https://github.com/firebase/FirebaseUI-Android/tree/master/firestore) for a
  * more efficient implementation of a Firestore RecyclerView Adapter.
  */
-abstract class FirestoreAdapter<VH : RecyclerView.ViewHolder>(private var mQuery: Query, private var headerItemCount: Int = 0) : RecyclerView.Adapter<VH>(), EventListener<QuerySnapshot> {
+abstract class FirestoreAdapter<VH : RecyclerView.ViewHolder>(private var mQuery: Query, var headerItemCount: Int = 0) : RecyclerView.Adapter<VH>(), EventListener<QuerySnapshot> {
     private var mRegistration: ListenerRegistration? = null
 
     private val mSnapshots = ArrayList<DocumentSnapshot>()
@@ -51,6 +51,11 @@ abstract class FirestoreAdapter<VH : RecyclerView.ViewHolder>(private var mQuery
         if (mRegistration == null) {
             mRegistration = mQuery.addSnapshotListener(this)
         }
+    }
+
+    fun updateHeaerItemCount(count: Int) {
+        this.headerItemCount = count
+        this.notifyDataSetChanged()
     }
 
     fun stopListening() {

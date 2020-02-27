@@ -15,6 +15,7 @@ import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.ListenerRegistration
 import org.baole.oned.databinding.MainActivityBinding
 import org.baole.oned.model.Story
+import org.baole.oned.story.pager.StoryPagerFragment
 import org.baole.oned.util.FirestoreUtil
 import org.baole.oned.viewmodel.MainActivityViewModel
 
@@ -54,7 +55,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun addStoryFragment(replace: Boolean = false) {
-        supportFragmentManager.beginTransaction().replace(R.id.content, StoryListFragment()).commitAllowingStateLoss()
+        supportFragmentManager.beginTransaction().replace(R.id.content, StoryPagerFragment()).commitAllowingStateLoss()
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {

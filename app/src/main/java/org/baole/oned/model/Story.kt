@@ -1,15 +1,15 @@
 package org.baole.oned.model
 
-class Story {
+class Story() {
     var timestamp: Long = 0
     var day: String = ""
     var content: String = ""
 
-//    constructor(day: String, content: String) : this() {
-//        this.day = day
-//        this.content = content
-//        this.timestamp = System.currentTimeMillis()
-//    }
+    constructor(day: String, content: String) : this() {
+        this.day = day
+        this.content = content
+        this.timestamp = System.currentTimeMillis()
+    }
 
     companion object {
         const val PATH = "stories"
