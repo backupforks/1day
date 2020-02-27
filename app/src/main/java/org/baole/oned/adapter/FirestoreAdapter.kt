@@ -118,12 +118,12 @@ abstract class FirestoreAdapter<VH : RecyclerView.ViewHolder>(private var mQuery
         onDataChanged()
     }
 
-    protected fun onDocumentAdded(change: DocumentChange) {
+    private fun onDocumentAdded(change: DocumentChange) {
         mSnapshots.add(change.newIndex, change.document)
         notifyItemInserted(change.newIndex + headerItemCount)
     }
 
-    protected fun onDocumentModified(change: DocumentChange) {
+    private fun onDocumentModified(change: DocumentChange) {
         if (change.oldIndex == change.newIndex) {
             // Item changed but remained in same position
             mSnapshots[change.oldIndex] = change.document
@@ -136,7 +136,7 @@ abstract class FirestoreAdapter<VH : RecyclerView.ViewHolder>(private var mQuery
         }
     }
 
-    protected fun onDocumentRemoved(change: DocumentChange) {
+    private fun onDocumentRemoved(change: DocumentChange) {
         mSnapshots.removeAt(change.oldIndex)
         notifyItemRemoved(change.oldIndex + headerItemCount)
     }

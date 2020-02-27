@@ -10,6 +10,7 @@ import org.baole.oned.R
 import org.baole.oned.databinding.StoryListItemBinding
 import org.baole.oned.model.Story
 import org.baole.oned.util.DateUtil
+import org.baole.oned.util.TextUtil
 import java.text.SimpleDateFormat
 import java.time.Month
 import java.util.*
@@ -68,7 +69,7 @@ class StoryItemViewHolder(itemView: View, private val mItemListener: (DocumentSn
             val day = DateUtil.key2date(it.day)
             binding.day.text = SimpleDateFormat("dd").format(day)
             binding.month.text = SimpleDateFormat("MMM").format(day)
-            binding.content.text = it.content
+            binding.content.text = TextUtil.markdown2text(it.content)
             itemView.tag = snapshot
         }
     }

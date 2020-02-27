@@ -190,9 +190,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     companion object {
-
-        private val TAG = "MainActivity"
-
+        private val TAG = MainActivity::class.java.simpleName
         private val RC_SIGN_IN = 9001
 
     }

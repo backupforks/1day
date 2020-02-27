@@ -74,20 +74,10 @@ class StoryListFragment : StoryFragment() {
             newStory(it.id)
         }) {
             override fun onDataChanged() {
-                // Show/hide content if the query returns empty.
-                if (itemCount <= 1) {
-                    main()?.showEmptyView(true)
-//                    binding.recyclerStories.visibility = View.GONE
-//                    binding.viewEmpty.viewEmpty.visibility = View.VISIBLE
-                } else {
-                    main()?.showEmptyView(false)
-//                    binding.recyclerStories.visibility = View.VISIBLE
-//                    binding.viewEmpty.viewEmpty.visibility = View.GONE
-                }
+                main()?.showEmptyView(itemCount <= 1)
             }
 
             override fun onError(e: FirebaseFirestoreException) {
-                // Show a snackbar on errors
                 Snackbar.make(binding.root, R.string.error_load_data, Snackbar.LENGTH_LONG).show()
             }
         }
@@ -113,7 +103,6 @@ class StoryListFragment : StoryFragment() {
 
     companion object {
         private val LIMIT = 50
-
         private val TAG = StoryListFragment::class.java.simpleName
     }
 }

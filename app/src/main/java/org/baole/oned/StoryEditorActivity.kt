@@ -18,7 +18,6 @@ import org.baole.oned.model.Story
 import org.baole.oned.util.DateUtil
 import org.baole.oned.util.FirestoreUtil
 
-
 class StoryEditorActivity : AppCompatActivity() {
     private lateinit var mFirestore: FirebaseFirestore
     private lateinit var mBinding: StoryEditorActivityBinding
@@ -76,13 +75,19 @@ class StoryEditorActivity : AppCompatActivity() {
     }
 
     private fun onStorySnapshotUpdated(documentSnapshot: DocumentSnapshot?) {
+        if (isFinishing) return
         mStoryDocumentSnapshot = documentSnapshot
         mStoryDocumentSnapshot?.toObject(Story::class.java)?.let {
             setStory(it)
             mStory = it
             mBinding.editor.setSelection(mBinding.editor.length())
         } ?: kotlin.run {
-            setStory(Story(mNewDay ?: DateUtil.day2key(), ""))
+            val story = Story()
+            story.day = mNewDay ?: DateUtil.day2key()
+            story.content = ""
+            story.timestamp = System.currentTimeMillis()
+            setStory(story)
+//            setStory(Story(mNewDay ?: DateUtil.day2key(), ""))
             mBinding.editor.requestFocus()
             val imm = getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
             imm.showSoftInput(mBinding.editor, 0)
@@ -96,7 +101,12 @@ class StoryEditorActivity : AppCompatActivity() {
     }
 
     private fun createStory(text: String) {
-        val story = Story(mStory.day, text)
+//        val story = Story(mStory.day, text)
+        val story = Story()
+        story.day = mStory.day
+        story.content = text
+        story.timestamp = System.currentTimeMillis()
+
         val task = FirestoreUtil.story(mFirestore, mFirebaesUser).document().set(story)
         if (isSignedIn()) {
             finish()
@@ -108,12 +118,11 @@ class StoryEditorActivity : AppCompatActivity() {
     }
 
     private fun updateStory(snapshot: DocumentSnapshot, newText: String) {
-        if (mNewDay != mStory.day) {
+        Log.d(TAG, "firestore: update =${snapshot.id}  -> ${mStory.day} ${mNewDay}/${newText}")
+        if (mNewDay != null && mNewDay != mStory.day) {
             createStory(newText)
         } else if (newText != mStory.content) {
-            Log.d(TAG, "firestore: update =${snapshot.id} -> ${mNewDay}/${newText}")
-            val task = FirestoreUtil.day(mFirestore, mFirebaesUser, snapshot.id).update(mapOf(Story.FIELD_CONTENT to newText,
-                    Story.FIELD_DAY to mNewDay
+            val task = FirestoreUtil.day(mFirestore, mFirebaesUser, snapshot.id).update(mapOf(Story.FIELD_CONTENT to newText
             ))
             if (isSignedIn()) {
                 finish()
@@ -176,6 +185,6 @@ class StoryEditorActivity : AppCompatActivity() {
 
     companion object {
 
-        private val TAG = "StoryEditorActivity"
+        private val TAG = StoryEditorActivity::class.java.simpleName
     }
 }
