@@ -3,6 +3,7 @@ package org.baole.oned
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
+import android.text.format.DateUtils
 import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
@@ -83,11 +84,6 @@ class StoryEditorActivity : AppCompatActivity() {
             mStory = it
             mBinding.editor.setSelection(mBinding.editor.length())
         } ?: kotlin.run {
-//            val story = Story()
-//            story.day = mNewDay ?: DateUtil.day2key()
-//            story.content = ""
-//            story.timestamp = System.currentTimeMillis()
-//            setStory(story)
             setStory(Story(mNewDay ?: DateUtil.day2key(), ""))
             mBinding.editor.requestFocus()
             val imm = getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
@@ -162,6 +158,10 @@ class StoryEditorActivity : AppCompatActivity() {
     private fun deleteStory() {
         mStoryDocumentSnapshot?.let {
             val task = FirestoreUtil.day(mFirestore, mFirebaesUser, it.id).delete()
+
+            if (DateUtils.isToday(DateUtil.key2date(mStory.day).time)) {
+                AppState.get(this).clearLastStoryTimestamp()
+            }
 
             if (isSignedIn()) {
                 finish()

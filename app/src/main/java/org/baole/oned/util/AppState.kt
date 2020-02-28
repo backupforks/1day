@@ -36,4 +36,7 @@ class AppState(private val mPref: SharedPreferences) {
             mPref.edit().putLong(PREF_LAST_STORY_TS, ts).apply()
         }
     }
+    fun clearLastStoryTimestamp() {
+        mPref.edit().remove(PREF_LAST_STORY_TS).apply()
+    }
 }

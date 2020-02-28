@@ -1,6 +1,7 @@
 package org.baole.oned.story.pager
 
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -34,6 +35,12 @@ class StoryPagerFragment : StoryFragment() {
         }, if (hasTodayStory()) 0 else 1) {
             override fun onDataChanged() {
                 main()?.showEmptyView(itemCount <= headerItemCount)
+                val newHeaderItemCount = if (hasTodayStory()) 0 else 1
+
+                Log.d(TAG, "onDataChanged $newHeaderItemCount")
+                if (newHeaderItemCount != headerItemCount) {
+                    updateHeaderItemCount(newHeaderItemCount)
+                }
             }
 
             override fun onError(e: FirebaseFirestoreException) {

@@ -3,7 +3,6 @@ package org.baole.oned
 import android.content.Intent
 import android.os.Bundle
 import android.text.format.DateUtils
-import android.util.Log
 import androidx.fragment.app.Fragment
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
@@ -23,7 +22,6 @@ open class StoryFragment : Fragment() {
         setHasOptionsMenu(false)
         initFirestore()
     }
-
 
     fun initFirestore() {
         mFirestore = FirebaseFirestore.getInstance()
@@ -49,7 +47,7 @@ open class StoryFragment : Fragment() {
     }
 
     companion object {
-        const val LIMIT = 50L
+        const val LIMIT = 5L
         val TAG = StoryFragment::class.java.simpleName
     }
 }

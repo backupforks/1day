@@ -38,9 +38,6 @@ import java.util.ArrayList
  * Note that this class forgoes some efficiency to gain simplicity. For example, the result of
  * [DocumentSnapshot.toObject] is not cached so the same object may be deserialized
  * many times as the user scrolls.
- *
- * See the adapter classes in FirebaseUI (https://github.com/firebase/FirebaseUI-Android/tree/master/firestore) for a
- * more efficient implementation of a Firestore RecyclerView Adapter.
  */
 abstract class FirestoreAdapter<VH : RecyclerView.ViewHolder>(private var mQuery: Query, var headerItemCount: Int = 0) : RecyclerView.Adapter<VH>(), EventListener<QuerySnapshot> {
     private var mRegistration: ListenerRegistration? = null
@@ -53,7 +50,7 @@ abstract class FirestoreAdapter<VH : RecyclerView.ViewHolder>(private var mQuery
         }
     }
 
-    fun updateHeaerItemCount(count: Int) {
+    fun updateHeaderItemCount(count: Int) {
         this.headerItemCount = count
         this.notifyDataSetChanged()
     }
@@ -111,8 +108,6 @@ abstract class FirestoreAdapter<VH : RecyclerView.ViewHolder>(private var mQuery
         // Dispatch the event
         for (change in documentSnapshots!!.documentChanges) {
             // Snapshot of the changed document
-            val snapshot = change.document
-
             when (change.type) {
                 DocumentChange.Type.ADDED -> onDocumentAdded(change)
                 DocumentChange.Type.MODIFIED -> onDocumentModified(change)
