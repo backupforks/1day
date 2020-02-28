@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+    android:key="settings"
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <PreferenceCategory android:title="@string/backup_restore">
@@ -12,4 +13,32 @@
             app:key="restore"
             app:title="@string/restore" />
     </PreferenceCategory>
+
+    <PreferenceCategory
+        android:key="account"
+        android:title="@string/account">
+
+
+        <Preference
+            app:key="sign_out"
+            app:title="@string/sign_out" />
+
+    </PreferenceCategory>
+
+
+    <PreferenceCategory android:title="@string/about">
+        <Preference
+            app:key="version"
+            app:title="@string/version" />
+
+        <Preference
+            app:key="open_source"
+            app:title="@string/open_source" />
+
+        <Preference
+            app:key="report_issues"
+            app:title="@string/report_issues" />
+
+    </PreferenceCategory>
+
 </PreferenceScreen>

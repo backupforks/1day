@@ -5,13 +5,15 @@ A digital one line a day
 # TODO
 - Show progress view
 - Export/import
-- Settings/info
 - Prepare open source
 - Publish on Play store
 - Launch on Product Hunt
-- Pager style - stories
 - Nicer list - stories
+- Add footer, end of stream item
+
+# DONE
+- Settings/info
 - Markdown support
--
+- Pager style - stories
 
 

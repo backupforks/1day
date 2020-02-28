@@ -15,7 +15,9 @@ import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.ListenerRegistration
 import org.baole.oned.databinding.MainActivityBinding
 import org.baole.oned.model.Story
+import org.baole.oned.story.list.StoryListFragment
 import org.baole.oned.story.pager.StoryPagerFragment
+import org.baole.oned.util.AppState
 import org.baole.oned.util.FirestoreUtil
 import org.baole.oned.viewmodel.MainActivityViewModel
 
@@ -32,7 +34,6 @@ class MainActivity : AppCompatActivity() {
         setSupportActionBar(mBinding.toolbar)
         mViewModel = ViewModelProvider(this).get(MainActivityViewModel::class.java)
 
-        // Enable Firestore logging
         setupFirestore()
         initEmptyView()
         addStoryFragment()
@@ -55,7 +56,12 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun addStoryFragment(replace: Boolean = false) {
-        supportFragmentManager.beginTransaction().replace(R.id.content, StoryPagerFragment()).commitAllowingStateLoss()
+        val fragment = when(AppState.get(this).getViewMode()) {
+            AppState.VIEW_MODE_PAGER -> StoryPagerFragment()
+            AppState.VIEW_MODE_LIST -> StoryListFragment()
+            else -> StoryListFragment()
+        }
+        supportFragmentManager.beginTransaction().replace(R.id.content, fragment).commitAllowingStateLoss()
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
@@ -64,38 +70,47 @@ class MainActivity : AppCompatActivity() {
     }
 
     override fun onPrepareOptionsMenu(menu: Menu): Boolean {
-        val isSignIn = isSignIn()
-
-        if (isSignIn) {
-            menu.findItem(R.id.menu_sign_in).isVisible = false
-        } else {
-            menu.findItem(R.id.menu_sign_out).isVisible = false
-        }
-
+         menu.findItem(R.id.menu_view).setIcon(when(AppState.get(this).getViewMode()) {
+             AppState.VIEW_MODE_PAGER -> R.drawable.ic_view_carousel_black_24dp
+             AppState.VIEW_MODE_LIST -> R.drawable.ic_view_list_black_24dp
+             else -> R.drawable.ic_view_list_black_24dp
+         })
+        menu.findItem(R.id.menu_sign_in).isVisible = !isSignIn()
         return super.onPrepareOptionsMenu(menu)
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
-            R.id.menu_sign_out -> {
-                AuthUI.getInstance().signOut(this).addOnSuccessListener {
-                    FirebaseFirestore.getInstance().let { ff ->
-                        addStoryFragment(true)
-                        updateEmptyView()
-                        invalidateOptionsMenu()
-                    }
-                }
-            }
             R.id.menu_sign_in -> {
                 backupStoriesAndSignIn()
                 updateEmptyView()
             }
 
             R.id.menu_settings -> {
-                startActivity(Intent(this, SettingActivity::class.java))
+                startActivityForResult(Intent(this, SettingActivity::class.java), RC_SETTINGS)
+            }
+
+            R.id.menu_view_list -> {
+                onSelectView(AppState.VIEW_MODE_LIST)
+            }
+
+            R.id.menu_view_pager -> {
+                onSelectView(AppState.VIEW_MODE_PAGER)
+            }
+
+            R.id.menu_new_story -> {
+                newStory()
             }
         }
         return super.onOptionsItemSelected(item)
+    }
+
+    private fun onSelectView(mode: Int) {
+        if (AppState.get(this).getViewMode() != mode) {
+            AppState.get(this).setViewMode(mode)
+            addStoryFragment()
+            invalidateOptionsMenu()
+        }
     }
 
     var backupStories = mutableListOf<Story>()
@@ -127,6 +142,10 @@ class MainActivity : AppCompatActivity() {
                 setupFirestore()
                 addStoryFragment(true)
             }
+        } else if (requestCode == RC_SETTINGS) {
+            addStoryFragment(true)
+            updateEmptyView()
+            invalidateOptionsMenu()
         }
     }
 
@@ -193,6 +212,7 @@ class MainActivity : AppCompatActivity() {
     companion object {
         private val TAG = MainActivity::class.java.simpleName
         private val RC_SIGN_IN = 9001
+        private val RC_SETTINGS = 9002
 
     }
 }

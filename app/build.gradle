@@ -12,6 +12,7 @@ buildscript {
     }
 }
 android {
+    def gitCommitCount = ("0" + 'git rev-list HEAD --count'.execute([], project.rootDir).text.trim()).toInteger()
     compileSdkVersion 29
     buildToolsVersion '29.0.3'
     defaultConfig {
@@ -19,7 +20,7 @@ android {
         minSdkVersion 21
         targetSdkVersion 29
         versionCode 1
-        versionName '1.0'
+        versionName '0.9.' + gitCommitCount
 
         multiDexEnabled true
         vectorDrawables.useSupportLibrary true

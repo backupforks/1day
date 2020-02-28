@@ -88,10 +88,10 @@ abstract class FirestoreAdapter<VH : RecyclerView.ViewHolder>(private var mQuery
     }
 
     override fun getItemViewType(position: Int): Int {
-        if (position < headerItemCount) {
-            return ITEM_TYPE_HEADER
+        return if (position < headerItemCount) {
+            ITEM_TYPE_HEADER
         } else {
-            return ITEM_TYPE_DATA
+            ITEM_TYPE_DATA
         }
     }
 

@@ -5,6 +5,7 @@
     <string name="sign_in">Sign In</string>
     <string name="settings">Settings</string>
 
+    <string name="new_story">New story</string>
     <string name="save">Save</string>
     <string name="preview">Preview</string>
     <string name="story_hint">How is your day?</string>
@@ -14,9 +15,18 @@
     <string name="last_backup">Last backup: %s</string>
     <string name="no_backup">No backup</string>
     <string name="restore">Restore</string>
+    <string name="account">Account</string>
+    <string name="about">About</string>
+    <string name="version">Version</string>
+    <string name="open_source">Open sources</string>
+    <string name="report_issues">Report issues</string>
 
     <string name="delete">Delete</string>
     <string name="clear">Clear</string>
     <string name="error_load_data">Error: can not load data</string>
+
+    <string name="story_view">Story View</string>
+    <string name="story_view_list">Story List</string>
+    <string name="story_view_pager">Story Pager</string>
 
 </resources>

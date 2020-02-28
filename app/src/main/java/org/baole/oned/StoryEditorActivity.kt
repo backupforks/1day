@@ -103,11 +103,6 @@ class StoryEditorActivity : AppCompatActivity() {
 
     private fun createStory(text: String) {
         val story = Story(mStory.day, text)
-//        val story = Story()
-//        story.day = mStory.day
-//        story.content = text
-//        story.timestamp = System.currentTimeMillis()
-
         val task = FirestoreUtil.story(mFirestore, mFirebaesUser).document().set(story)
         if (isSignedIn()) {
             finish()
@@ -117,7 +112,7 @@ class StoryEditorActivity : AppCompatActivity() {
             }.addOnFailureListener { it.printStackTrace() }
         }
 
-        AppState.get(this).markLastStoryTimestamp()
+        AppState.get(this).markLastStoryTimestamp(DateUtil.key2date(mStory.day).time)
     }
 
     private fun updateStory(snapshot: DocumentSnapshot, newText: String) {

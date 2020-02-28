@@ -1,24 +1,15 @@
 package org.baole.oned.story.list
 
-import android.content.Intent
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.android.material.snackbar.Snackbar
-import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.auth.FirebaseUser
-import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.FirebaseFirestoreException
-import com.google.firebase.firestore.Query
 import org.baole.oned.R
-import org.baole.oned.StoryEditorActivity
 import org.baole.oned.StoryFragment
 import org.baole.oned.databinding.StoryListFragmentBinding
-import org.baole.oned.model.Story
-import org.baole.oned.util.FirestoreUtil
 
 
 class StoryListFragment : StoryFragment() {
@@ -33,20 +24,15 @@ class StoryListFragment : StoryFragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        initFirestore()
         initRecyclerView()
     }
 
 
     private fun initRecyclerView() {
-        if (mQuery == null) {
-            Log.w(TAG, "No query, not initializing RecyclerView")
-        }
-
-        mAdapter = object : StoryAdapter(mQuery!!, {
-            newStory()
+        mAdapter = object : StoryAdapter(mQuery, {
+            editStory()
         }, {
-            newStory(it.id)
+            editStory(it.id)
         }) {
             override fun onDataChanged() {
                 main()?.showEmptyView(itemCount <= headerItemCount)

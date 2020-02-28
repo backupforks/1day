@@ -1,17 +1,36 @@
 <?xml version="1.0" encoding="utf-8"?>
-<menu xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:android="http://schemas.android.com/apk/res/android">
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <item
+        android:id="@+id/menu_view"
+        android:icon="@drawable/ic_view_list_black_24dp"
+        android:title="@string/sign_in"
+        app:iconTint="?attr/colorControlNormal"
+        app:showAsAction="always">
+        <menu>
+            <item
+                android:id="@+id/menu_view_list"
+                android:icon="@drawable/ic_view_list_black_24dp"
+                android:title="@string/story_view_list"
+                app:iconTint="?attr/colorControlNormal" />
+            <item
+                android:id="@+id/menu_view_pager"
+                android:icon="@drawable/ic_view_carousel_black_24dp"
+                android:title="@string/story_view_pager"
+                app:iconTint="?attr/colorControlNormal" />
+        </menu>
+    </item>
 
     <item
         android:id="@+id/menu_sign_in"
         android:title="@string/sign_in" />
 
     <item
-        android:id="@+id/menu_sign_out"
-        android:title="@string/sign_out" />
-
-    <item
-        android:id="@+id/menu_settings"
-        android:title="@string/settings" />
-
+        android:id="@+id/menu_new_story"
+        android:title="@string/new_story" />
+    <group>
+        <item
+            android:id="@+id/menu_settings"
+            android:title="@string/settings" />
+    </group>
 </menu>

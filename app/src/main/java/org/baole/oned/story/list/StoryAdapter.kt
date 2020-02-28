@@ -21,15 +21,15 @@ open class StoryAdapter(query: Query, private val mHeaderListener: () -> Unit, p
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): StoryViewHolder {
         val inflater = LayoutInflater.from(parent.context)
-        if (viewType == ITEM_TYPE_HEADER) {
-            return StoryHeaderViewHolder(inflater.inflate(R.layout.story_list_header, parent, false), mHeaderListener)
+        return if (viewType == ITEM_TYPE_HEADER) {
+            StoryHeaderViewHolder(inflater.inflate(R.layout.story_list_header, parent, false), mHeaderListener)
         } else {
-            return StoryItemViewHolder(inflater.inflate(R.layout.story_list_item, parent, false), mItemListener)
+            StoryItemViewHolder(inflater.inflate(R.layout.story_list_item, parent, false), mItemListener)
         }
     }
 
     override fun onBindViewHolder(holder: StoryViewHolder, position: Int) {
-        if (position == 0) {
+        if (position < headerItemCount) {
             holder.bind(null)
         } else {
             holder.bind(getSnapshot(position))
@@ -68,7 +68,7 @@ class StoryItemViewHolder(itemView: View, private val mItemListener: (DocumentSn
             val day = DateUtil.key2date(it.day)
             binding.day.text = SimpleDateFormat("dd").format(day)
             binding.month.text = SimpleDateFormat("MMM").format(day)
-            binding.content.text = TextUtil.markdown2text(it.content)
+            binding.content.text = TextUtil.markdown2text(it.content.trim())
             itemView.tag = snapshot
         }
     }

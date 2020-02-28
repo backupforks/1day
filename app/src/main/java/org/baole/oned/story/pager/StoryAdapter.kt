@@ -29,7 +29,7 @@ open class StoryAdapter(query: Query, private val mHeaderListener: () -> Unit, p
     }
 
     override fun onBindViewHolder(holder: StoryViewHolder, position: Int) {
-        if (position == 0) {
+        if (position < headerItemCount) {
             holder.bind(null)
         } else {
             holder.bind(getSnapshot(position))
@@ -66,9 +66,8 @@ class StoryItemViewHolder(itemView: View, private val mItemListener: (DocumentSn
 
         snapshot?.toObject(Story::class.java)?.let {
             val day = DateUtil.key2date(it.day)
-            binding.day.text = SimpleDateFormat("dd").format(day)
-            binding.month.text = SimpleDateFormat("MMM").format(day)
-            binding.content.text = TextUtil.markdown2text(it.content)
+            binding.day.text = SimpleDateFormat.getDateInstance(SimpleDateFormat.MEDIUM).format(day)
+            binding.content.text = TextUtil.markdown2text(it.content.trim())
             itemView.tag = snapshot
         }
     }

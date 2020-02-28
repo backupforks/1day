@@ -16,11 +16,12 @@ import org.baole.oned.util.FirestoreUtil
 open class StoryFragment : Fragment() {
     var mFirebaseUser: FirebaseUser? = null
     lateinit var mFirestore: FirebaseFirestore
-    var mQuery: Query? = null
+    lateinit var mQuery: Query
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setHasOptionsMenu(false)
+        initFirestore()
     }
 
 
@@ -43,10 +44,9 @@ open class StoryFragment : Fragment() {
         return DateUtils.isToday(lastStory)
     }
 
-    fun newStory(storyId: String = "") {
+    fun editStory(storyId: String = "") {
         startActivity(Intent(activity, StoryEditorActivity::class.java).putExtra(FirestoreUtil.FIELD_ID, storyId))
     }
-
 
     companion object {
         const val LIMIT = 50L
