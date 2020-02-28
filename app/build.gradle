@@ -13,14 +13,14 @@ buildscript {
 }
 android {
     def gitCommitCount = ("0" + 'git rev-list HEAD --count'.execute([], project.rootDir).text.trim()).toInteger()
-    compileSdkVersion 29
-    buildToolsVersion '29.0.3'
+    compileSdkVersion compile_sdk
+    buildToolsVersion build_tools_version
     defaultConfig {
         applicationId 'org.baole.oned'
-        minSdkVersion 21
-        targetSdkVersion 29
-        versionCode 1
-        versionName '0.9.' + gitCommitCount
+        minSdkVersion min_sdk
+        targetSdkVersion target_sdk
+        versionCode gitCommitCount
+        versionName app_verion_major + "." + gitCommitCount
 
         multiDexEnabled true
         vectorDrawables.useSupportLibrary true
