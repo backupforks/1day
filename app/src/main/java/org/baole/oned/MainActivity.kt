@@ -2,6 +2,7 @@ package org.baole.oned
 
 import android.content.Intent
 import android.os.Bundle
+import android.text.format.DateUtils
 import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
@@ -15,9 +16,11 @@ import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.ListenerRegistration
 import org.baole.oned.databinding.MainActivityBinding
 import org.baole.oned.model.Story
+import org.baole.oned.story.ex.StoryBlockFragment
 import org.baole.oned.story.list.StoryListFragment
 import org.baole.oned.story.pager.StoryPagerFragment
 import org.baole.oned.util.AppState
+import org.baole.oned.util.DateUtil
 import org.baole.oned.util.FirestoreUtil
 import org.baole.oned.viewmodel.MainActivityViewModel
 
@@ -59,6 +62,7 @@ class MainActivity : AppCompatActivity() {
         val fragment = when(AppState.get(this).getViewMode()) {
             AppState.VIEW_MODE_PAGER -> StoryPagerFragment()
             AppState.VIEW_MODE_LIST -> StoryListFragment()
+            AppState.VIEW_MODE_BLOCK -> StoryBlockFragment()
             else -> StoryListFragment()
         }
         supportFragmentManager.beginTransaction().replace(R.id.content, fragment).commitAllowingStateLoss()
@@ -70,11 +74,22 @@ class MainActivity : AppCompatActivity() {
     }
 
     override fun onPrepareOptionsMenu(menu: Menu): Boolean {
-         menu.findItem(R.id.menu_view).setIcon(when(AppState.get(this).getViewMode()) {
-             AppState.VIEW_MODE_PAGER -> R.drawable.ic_view_carousel_black_24dp
-             AppState.VIEW_MODE_LIST -> R.drawable.ic_view_list_black_24dp
-             else -> R.drawable.ic_view_list_black_24dp
-         })
+         menu.findItem(R.id.menu_view)?.let {
+             when(AppState.get(this).getViewMode()) {
+                 AppState.VIEW_MODE_PAGER -> {
+                     it.setIcon(R.drawable.ic_view_carousel_black_24dp)
+                     menu.findItem(R.id.menu_view_pager)?.isChecked = true
+                 }
+                 AppState.VIEW_MODE_LIST -> {
+                     it.setIcon(R.drawable.ic_view_list_black_24dp)
+                     menu.findItem(R.id.menu_view_list)?.isChecked = true
+                 }
+                 AppState.VIEW_MODE_BLOCK -> {
+                     it.setIcon(R.drawable.ic_view_carousel_black_24dp)
+                     menu.findItem(R.id.menu_view_block)?.isChecked = true
+                 }
+             }
+         }
         menu.findItem(R.id.menu_sign_in).isVisible = !isSignIn()
         return super.onPrepareOptionsMenu(menu)
     }
@@ -88,6 +103,12 @@ class MainActivity : AppCompatActivity() {
 
             R.id.menu_settings -> {
                 startActivityForResult(Intent(this, SettingActivity::class.java), RC_SETTINGS)
+//                var ts = System.currentTimeMillis() - 10 * DateUtils.DAY_IN_MILLIS
+//                val user = FirebaseAuth.getInstance().currentUser
+//                for (index in 0..100) {
+//                    FirestoreUtil.story(mFirestore, user).document().set(Story(DateUtil.day2key(ts), "$index Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum"))
+//                    ts -= DateUtils.DAY_IN_MILLIS
+//                }
             }
 
             R.id.menu_view_list -> {
@@ -96,6 +117,10 @@ class MainActivity : AppCompatActivity() {
 
             R.id.menu_view_pager -> {
                 onSelectView(AppState.VIEW_MODE_PAGER)
+            }
+
+            R.id.menu_view_block -> {
+                onSelectView(AppState.VIEW_MODE_BLOCK)
             }
 
             R.id.menu_new_story -> {
@@ -158,7 +183,6 @@ class MainActivity : AppCompatActivity() {
             Log.d(TAG, "data: move $it")
             FirestoreUtil.story(mFirestore, user).document().set(it)
         }
-
     }
 
     private fun isSignIn(): Boolean {

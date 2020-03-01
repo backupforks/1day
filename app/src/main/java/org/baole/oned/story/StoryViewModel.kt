@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.baole.oned.viewmodel
+package org.baole.oned.story
 
 import androidx.lifecycle.ViewModel
 
@@ -21,6 +21,6 @@ import androidx.lifecycle.ViewModel
  * ViewModel for [org.baole.oned.MainActivity].
  */
 
-class MainActivityViewModel : ViewModel() {
+class StoryViewModel : ViewModel() {
     var isSigningIn = false
 }

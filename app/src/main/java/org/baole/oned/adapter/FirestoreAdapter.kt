@@ -63,19 +63,6 @@ abstract class FirestoreAdapter<VH : RecyclerView.ViewHolder>(private var mQuery
         notifyDataSetChanged()
     }
 
-    fun setQuery(query: Query) {
-        // Stop listening
-        stopListening()
-
-        // Clear existing data
-        mSnapshots.clear()
-        notifyDataSetChanged()
-
-        // Listen to new query
-        mQuery = query
-        startListening()
-    }
-
     override fun getItemCount(): Int {
         return mSnapshots.size + headerItemCount
     }

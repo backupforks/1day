@@ -8,13 +8,13 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.android.material.snackbar.Snackbar
 import com.google.firebase.firestore.FirebaseFirestoreException
 import org.baole.oned.R
-import org.baole.oned.StoryFragment
+import org.baole.oned.story.StoryFragment
 import org.baole.oned.databinding.StoryListFragmentBinding
 
 
 class StoryListFragment : StoryFragment() {
 
-    private lateinit var mAdapter: StoryAdapter
+    private lateinit var mAdapter: StoryListAdapter
     private lateinit var mBinding: StoryListFragmentBinding
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
@@ -27,12 +27,11 @@ class StoryListFragment : StoryFragment() {
         initRecyclerView()
     }
 
-
     private fun initRecyclerView() {
-        mAdapter = object : StoryAdapter(mQuery, {
+        mAdapter = object : StoryListAdapter(mQuery, {
             editStory()
         }, {
-            editStory(it.id)
+            editStory(it.mDocumentId)
         }) {
             override fun onDataChanged() {
                 main()?.showEmptyView(itemCount <= headerItemCount)

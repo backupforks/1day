@@ -1,4 +1,4 @@
-package org.baole.oned
+package org.baole.oned.story
 
 import android.content.Intent
 import android.os.Bundle
@@ -8,6 +8,8 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.Query
+import org.baole.oned.MainActivity
+import org.baole.oned.StoryEditorActivity
 import org.baole.oned.model.Story
 import org.baole.oned.util.AppState
 import org.baole.oned.util.FirestoreUtil

@@ -1,15 +1,15 @@
 package org.baole.oned.story.list
 
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
-import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.Query
 import org.baole.oned.R
-import org.baole.oned.adapter.FirestoreAdapter
 import org.baole.oned.databinding.StoryListItemBinding
-import org.baole.oned.model.Story
+import org.baole.oned.story.StoryAdapter
+import org.baole.oned.story.StoryData
 import org.baole.oned.util.DateUtil
 import org.baole.oned.util.TextUtil
 import java.text.SimpleDateFormat
@@ -17,7 +17,7 @@ import java.text.SimpleDateFormat
 /**
  * RecyclerView adapter for a list of story.
  */
-open class StoryAdapter(query: Query, private val mHeaderListener: () -> Unit, private val mItemListener: (DocumentSnapshot) -> Unit) : FirestoreAdapter<StoryViewHolder>(query, 1) {
+open class StoryListAdapter(query: Query, private val mHeaderListener: () -> Unit, private val mItemListener: (StoryData) -> Unit) : StoryAdapter<StoryViewHolder>(query, 1) {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): StoryViewHolder {
         val inflater = LayoutInflater.from(parent.context)
@@ -32,14 +32,18 @@ open class StoryAdapter(query: Query, private val mHeaderListener: () -> Unit, p
         if (position < headerItemCount) {
             holder.bind(null)
         } else {
-            holder.bind(getSnapshot(position))
+            holder.bind(getStory(position))
+        }
+        Log.d(StoryAdapter.TAG, "onBindViewHolder $position $itemCount")
+        if (position == itemCount - 1) {
+            loadNext()
         }
     }
 
 }
 
 open class StoryViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-    open fun bind(snapshot: DocumentSnapshot?) {}
+    open fun bind(story: StoryData?) {}
 
 }
 
@@ -51,25 +55,24 @@ class StoryHeaderViewHolder(itemView: View, private val mHeaderListener: () -> U
     }
 }
 
-class StoryItemViewHolder(itemView: View, private val mItemListener: (DocumentSnapshot) -> Unit) : StoryViewHolder(itemView) {
+class StoryItemViewHolder(itemView: View, private val mItemListener: (StoryData) -> Unit) : StoryViewHolder(itemView) {
     var binding = StoryListItemBinding.bind(itemView)
 
     init {
         itemView.setOnClickListener {
             itemView.tag?.let {
-                mItemListener.invoke(it as DocumentSnapshot)
+                mItemListener.invoke(it as StoryData)
             }
         }
     }
 
-    override fun bind(snapshot: DocumentSnapshot?) {
-
-        snapshot?.toObject(Story::class.java)?.let {
-            val day = DateUtil.key2date(it.day)
+    override fun bind(story: StoryData?) {
+        story?.let {
+            val day = DateUtil.key2date(it.mStory.day)
             binding.day.text = SimpleDateFormat("dd").format(day)
             binding.month.text = SimpleDateFormat("MMM").format(day)
-            binding.content.text = TextUtil.markdown2text(it.content.trim())
-            itemView.tag = snapshot
+            binding.content.text = TextUtil.markdown2text(it.mStory.content.trim())
+            itemView.tag = it
         }
     }
 }

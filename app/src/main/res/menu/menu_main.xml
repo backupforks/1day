@@ -18,6 +18,11 @@
                 android:icon="@drawable/ic_view_carousel_black_24dp"
                 android:title="@string/story_view_pager"
                 app:iconTint="?attr/colorControlNormal" />
+            <item
+                android:id="@+id/menu_view_block"
+                android:icon="@drawable/ic_view_carousel_black_24dp"
+                android:title="@string/story_view_pager"
+                app:iconTint="?attr/colorControlNormal" />
         </menu>
     </item>
 

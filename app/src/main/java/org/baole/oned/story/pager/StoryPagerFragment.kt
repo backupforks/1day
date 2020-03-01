@@ -8,7 +8,7 @@ import android.view.ViewGroup
 import com.google.android.material.snackbar.Snackbar
 import com.google.firebase.firestore.FirebaseFirestoreException
 import org.baole.oned.R
-import org.baole.oned.StoryFragment
+import org.baole.oned.story.StoryFragment
 import org.baole.oned.databinding.StoryPagerFragmentBinding
 
 

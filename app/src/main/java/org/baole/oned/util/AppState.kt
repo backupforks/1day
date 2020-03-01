@@ -22,6 +22,7 @@ class AppState(private val mPref: SharedPreferences) {
 
         const val VIEW_MODE_LIST = 0
         const val VIEW_MODE_PAGER = 1
+        const val VIEW_MODE_BLOCK = 2
     }
 
     fun setViewMode(mode: Int) {
