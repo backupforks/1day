@@ -1,5 +1,6 @@
 package org.baole.oned.story.list
 
+import android.content.Context
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
@@ -17,7 +18,8 @@ import java.text.SimpleDateFormat
 /**
  * RecyclerView adapter for a list of story.
  */
-open class StoryListAdapter(query: Query, private val mHeaderListener: () -> Unit, private val mItemListener: (StoryData) -> Unit) : StoryAdapter<StoryViewHolder>(query, 1) {
+open class StoryListAdapter(context: Context, query: Query, private val mHeaderListener: () -> Unit, private val mItemListener: (StoryData) -> Unit) :
+        StoryAdapter<StoryViewHolder>(context, query) {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): StoryViewHolder {
         val inflater = LayoutInflater.from(parent.context)
@@ -29,11 +31,7 @@ open class StoryListAdapter(query: Query, private val mHeaderListener: () -> Uni
     }
 
     override fun onBindViewHolder(holder: StoryViewHolder, position: Int) {
-        if (position < headerItemCount) {
-            holder.bind(null)
-        } else {
-            holder.bind(getStory(position))
-        }
+        holder.bind(getStory(position))
         Log.d(StoryAdapter.TAG, "onBindViewHolder $position $itemCount")
         if (position == itemCount - 1) {
             loadNext()

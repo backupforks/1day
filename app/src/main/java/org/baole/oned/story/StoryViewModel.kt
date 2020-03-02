@@ -15,12 +15,17 @@
  */
 package org.baole.oned.story
 
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import com.google.firebase.firestore.Query
 
 /**
  * ViewModel for [org.baole.oned.MainActivity].
  */
 
 class StoryViewModel : ViewModel() {
-    var isSigningIn = false
+    val mStoryLiveData = MutableLiveData<List<StoryData>>()
+    lateinit var mQuery: Query
+
+
 }

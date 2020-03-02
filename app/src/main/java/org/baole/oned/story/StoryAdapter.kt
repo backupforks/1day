@@ -1,14 +1,16 @@
 
 package org.baole.oned.story
 
+import android.content.Context
 import android.util.Log
-
+import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import com.google.firebase.firestore.*
-
 import org.baole.oned.model.Story
+import org.baole.oned.util.AppState
+import org.baole.oned.util.StoryObservable
+import java.util.*
 
-import java.util.ArrayList
 
 /**
  * RecyclerView adapter for displaying the results of a Firestore [Query].
@@ -20,7 +22,7 @@ import java.util.ArrayList
 
 
 
-abstract class StoryAdapter<VH : RecyclerView.ViewHolder>(private var mQuery: Query, var headerItemCount: Int = 0) : RecyclerView.Adapter<VH>() {
+abstract class StoryAdapter<VH : RecyclerView.ViewHolder>(private val context: Context, private var mQuery: Query) : RecyclerView.Adapter<VH>() {
     private var mRegistration: ListenerRegistration? = null
     private var mStories = mutableListOf<StoryData>()
     private val mStoriesMap = mutableMapOf<String, StoryData>()
@@ -29,10 +31,43 @@ abstract class StoryAdapter<VH : RecyclerView.ViewHolder>(private var mQuery: Qu
     private var mLastSnapshot: DocumentSnapshot? = null
 
     private val mSnapshots = ArrayList<DocumentSnapshot>()
+    private var hasTodayStory: Boolean
+    private val mHeader = StoryData("1", Story("1", ""))
 
     init {
+        hasTodayStory = AppState.get(context).hasTodayStory()
+        if (!hasTodayStory) {
+            mStories.add(mHeader)
+        }
+
+        AppState.get(context).mStoryObservable.addObserver { observer, arg ->
+            Log.d(TAG, "addObserver $observer $arg")
+            (observer as StoryObservable).getData()?.let {
+                Log.d(TAG, "addObserver data=${it.mStory.content}")
+                updateStory(it.mDocumentId, it.mStory)
+            }
+        }
+    }
 
 
+    fun updateStory(documentId: String, story: Story) {
+        hasTodayStory = AppState.get(context).hasTodayStory()
+        val data = StoryData(documentId, story)
+        val newStories = mutableListOf<StoryData>()
+        if (mStoriesMap.containsKey(documentId)) {
+            mStoriesMap[documentId] = data
+            newStories.addAll(mStoriesMap.values)
+        } else {
+            mStoriesMap[documentId] = data
+            newStories.add(data)
+            newStories.addAll(mStories)
+        }
+
+        newStories.sortByDescending { it.mStory.day }
+        if (!hasTodayStory) newStories.add(0, mHeader)
+        val diffResult = DiffUtil.calculateDiff(StoryDiffCallback(newStories, this.mStories))
+        mStories = newStories
+        diffResult.dispatchUpdatesTo(this)
     }
 
     fun startListening() {
@@ -81,11 +116,6 @@ abstract class StoryAdapter<VH : RecyclerView.ViewHolder>(private var mQuery: Qu
         }
     }
 
-    fun updateHeaderItemCount(count: Int) {
-        this.headerItemCount = count
-        this.notifyDataSetChanged()
-    }
-
     fun stopListening() {
         mRegistration?.remove()
         mRegistration = null
@@ -95,25 +125,23 @@ abstract class StoryAdapter<VH : RecyclerView.ViewHolder>(private var mQuery: Qu
     }
 
     override fun getItemCount(): Int {
-        return mStories.size + headerItemCount
-    }
-
-    protected fun getSnapshot(index: Int): DocumentSnapshot {
-        return mSnapshots[index - headerItemCount]
+        return mStories.size
     }
 
 
     protected fun getStory(position: Int): StoryData? {
-        return mStories.getOrNull(position - headerItemCount)
+        return mStories.getOrNull(position)
     }
 
     override fun getItemViewType(position: Int): Int {
-        return if (position < headerItemCount) {
+        return if (!hasTodayStory && position == 0) {
             ITEM_TYPE_HEADER
         } else {
             ITEM_TYPE_DATA
         }
     }
+
+    private fun getHeaderCount() = if (hasTodayStory) 0 else 1
 
     protected open fun onError(e: FirebaseFirestoreException) {}
 

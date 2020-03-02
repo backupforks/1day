@@ -16,6 +16,7 @@ import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.FirebaseFirestore
 import org.baole.oned.databinding.StoryEditorActivityBinding
 import org.baole.oned.model.Story
+import org.baole.oned.story.StoryData
 import org.baole.oned.util.AppState
 import org.baole.oned.util.DateUtil
 import org.baole.oned.util.FirestoreUtil
@@ -99,7 +100,8 @@ class StoryEditorActivity : AppCompatActivity() {
 
     private fun createStory(text: String) {
         val story = Story(mStory.day, text)
-        val task = FirestoreUtil.story(mFirestore, mFirebaesUser).document().set(story)
+        val documentReference = FirestoreUtil.story(mFirestore, mFirebaesUser).document()
+        val task = documentReference.set(story)
         if (isSignedIn()) {
             finish()
         } else {
@@ -107,7 +109,7 @@ class StoryEditorActivity : AppCompatActivity() {
                 finish()
             }.addOnFailureListener { it.printStackTrace() }
         }
-
+        AppState.get(this).mStoryObservable.setData(StoryData(documentReference.id, story))
         AppState.get(this).markLastStoryTimestamp(DateUtil.key2date(mStory.day).time)
     }
 
@@ -128,6 +130,7 @@ class StoryEditorActivity : AppCompatActivity() {
                     it.printStackTrace()
                 }
             }
+            AppState.get(this).mStoryObservable.setData(StoryData(snapshot.id, Story(mStory.day, newText)))
         } else {
             finish()
         }

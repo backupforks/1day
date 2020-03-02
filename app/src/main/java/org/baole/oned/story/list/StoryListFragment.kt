@@ -28,13 +28,14 @@ class StoryListFragment : StoryFragment() {
     }
 
     private fun initRecyclerView() {
-        mAdapter = object : StoryListAdapter(mQuery, {
+        mAdapter = object : StoryListAdapter(context!!, mQuery, {
             editStory()
         }, {
             editStory(it.mDocumentId)
         }) {
             override fun onDataChanged() {
-                main()?.showEmptyView(itemCount <= headerItemCount)
+                //TODO
+                main()?.showEmptyView(itemCount <= 1)
             }
 
             override fun onError(e: FirebaseFirestoreException) {

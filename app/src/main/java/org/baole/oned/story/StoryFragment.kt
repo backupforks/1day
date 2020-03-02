@@ -40,8 +40,7 @@ open class StoryFragment : Fragment() {
     }
 
     fun hasTodayStory (): Boolean {
-        val lastStory = AppState.get(context!!).getLastStoryTimestamp()
-        return DateUtils.isToday(lastStory)
+        return AppState.get(context!!).hasTodayStory()
     }
 
     fun editStory(storyId: String = "") {

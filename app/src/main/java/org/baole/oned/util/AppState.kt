@@ -4,6 +4,8 @@ import android.content.Context
 import android.content.SharedPreferences
 import android.text.format.DateUtils
 import androidx.preference.PreferenceManager
+import org.baole.oned.story.StoryData
+import java.util.*
 
 class AppState(private val mPref: SharedPreferences) {
     companion object {
@@ -16,7 +18,6 @@ class AppState(private val mPref: SharedPreferences) {
             return ins
         }
 
-
         const val PREF_LAST_STORY_TS = "last_story_ts"
         const val PREF_VIEW_MODE = "view_mode"
 
@@ -25,13 +26,18 @@ class AppState(private val mPref: SharedPreferences) {
         const val VIEW_MODE_BLOCK = 2
     }
 
+    val mStoryObservable: StoryObservable = StoryObservable()
+
     fun setViewMode(mode: Int) {
         mPref.edit().putInt(PREF_VIEW_MODE, mode).apply()
     }
 
     fun getViewMode(): Int = mPref.getInt(PREF_VIEW_MODE, VIEW_MODE_LIST)
 
-    fun getLastStoryTimestamp(): Long = mPref.getLong(PREF_LAST_STORY_TS, 0)
+    fun hasTodayStory(): Boolean {
+        return true
+//        return DateUtils.isToday(mPref.getLong(PREF_LAST_STORY_TS, 0))
+    }
     fun markLastStoryTimestamp(ts: Long) {
         if (DateUtils.isToday(ts)) {
             mPref.edit().putLong(PREF_LAST_STORY_TS, ts).apply()
@@ -40,4 +46,6 @@ class AppState(private val mPref: SharedPreferences) {
     fun clearLastStoryTimestamp() {
         mPref.edit().remove(PREF_LAST_STORY_TS).apply()
     }
+
+
 }
