@@ -1,16 +1,14 @@
 package org.baole.oned.story.pager
 
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
+import org.baole.oned.OnedApp
 import org.baole.oned.R
-import org.baole.oned.databinding.StoryListItemBinding
 import org.baole.oned.databinding.StoryPagerItemBinding
 import org.baole.oned.story.*
 import org.baole.oned.util.DateUtil
-import org.baole.oned.util.TextUtil
 import java.text.SimpleDateFormat
 
 /**
@@ -52,7 +50,7 @@ class StoryHeaderViewHolder(itemView: View, private val fragment: StoryFragment)
 }
 
 class StoryItemViewHolder(itemView: View, private val mFragment: StoryFragment) : StoryViewHolder(itemView) {
-    var binding = StoryPagerItemBinding.bind(itemView)
+    var mBinding = StoryPagerItemBinding.bind(itemView)
 
     init {
         itemView.setOnClickListener {
@@ -65,8 +63,9 @@ class StoryItemViewHolder(itemView: View, private val mFragment: StoryFragment) 
     override fun bind(story: StoryAdapterData) {
         (story as StoryAdapterItem).let {
             val day = DateUtil.key2date(it.mStory.day)
-            binding.day.text = SimpleDateFormat.getDateInstance(SimpleDateFormat.MEDIUM).format(day)
-            binding.content.text = TextUtil.markdown2text(it.mStory.content.trim())
+            mBinding.day.text = SimpleDateFormat.getDateInstance(SimpleDateFormat.MEDIUM).format(day)
+//            binding.content.text = TextUtil.markdown2text(it.mStory.content.trim())
+            OnedApp.sApp.mMarkwon.setMarkdown(mBinding.content, it.mStory.content.trim())
             itemView.tag = it
         }
     }

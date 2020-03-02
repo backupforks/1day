@@ -8,6 +8,7 @@ buildscript {
     ext.target_sdk = 29
     ext.min_sdk = 21
     ext.app_verion_major = "0.9"
+    ext.markwon_version ='4.2.2'
 
     repositories {
         google()
@@ -25,6 +26,7 @@ allprojects {
         google()
         jcenter()
         mavenLocal()
+        maven { url 'https://oss.sonatype.org/content/repositories/snapshots/' }
     }
 }
 

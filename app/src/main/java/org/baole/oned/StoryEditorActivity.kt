@@ -3,22 +3,18 @@ package org.baole.oned
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
-import android.text.Editable
-import android.text.TextWatcher
-import android.text.format.DateUtils
 import android.util.Log
-import android.view.KeyEvent
 import android.view.Menu
 import android.view.MenuItem
-import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.InputMethodManager
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.os.bundleOf
-import androidx.core.widget.addTextChangedListener
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.FirebaseFirestore
+import io.noties.markwon.editor.MarkwonEditor
+import io.noties.markwon.editor.MarkwonEditorTextWatcher
 import org.baole.oned.databinding.StoryEditorActivityBinding
 import org.baole.oned.model.Story
 import org.baole.oned.story.StoryAdapterItem
@@ -47,8 +43,8 @@ class StoryEditorActivity : AppCompatActivity() {
     }
 
     private fun setupEditor() {
-
-
+        val editor = MarkwonEditor.create(OnedApp.sApp.mMarkwon)
+        mBinding.editor.addTextChangedListener(MarkwonEditorTextWatcher.withProcess(editor))
     }
 
     private fun setupSaveButton() {

@@ -41,6 +41,8 @@
             android:layout_marginTop="5dp"
             android:paddingStart="10dp"
             android:paddingEnd="10dp"
+            android:clickable="false"
+            android:linksClickable="false"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toEndOf="@+id/day"
             app:layout_constraintTop_toTopOf="parent" />

@@ -1,15 +1,15 @@
 package org.baole.oned.story.list
 
-import android.util.Log
+import android.text.method.LinkMovementMethod
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
+import org.baole.oned.OnedApp
 import org.baole.oned.R
 import org.baole.oned.databinding.StoryListItemBinding
 import org.baole.oned.story.*
 import org.baole.oned.util.DateUtil
-import org.baole.oned.util.TextUtil
 import java.text.SimpleDateFormat
 
 /**
@@ -33,7 +33,6 @@ class StoryListAdapter(private val mFragment: StoryFragment, private val viewMod
             viewModel.loadNext()
         }
     }
-
 }
 
 open class StoryViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
@@ -51,7 +50,7 @@ class StoryHeaderViewHolder(itemView: View, private val fragment: StoryFragment)
 }
 
 class StoryItemViewHolder(itemView: View, private val mFragment: StoryFragment) : StoryViewHolder(itemView) {
-    var binding = StoryListItemBinding.bind(itemView)
+    var mBinding = StoryListItemBinding.bind(itemView)
 
     init {
         itemView.setOnClickListener {
@@ -64,9 +63,10 @@ class StoryItemViewHolder(itemView: View, private val mFragment: StoryFragment) 
     override fun bind(story: StoryAdapterData) {
         (story as StoryAdapterItem).let {
             val day = DateUtil.key2date(it.mStory.day)
-            binding.day.text = SimpleDateFormat("dd").format(day)
-            binding.month.text = SimpleDateFormat("MMM").format(day)
-            binding.content.text = TextUtil.markdown2text(it.mStory.content.trim())
+            mBinding.day.text = SimpleDateFormat("dd").format(day)
+            mBinding.month.text = SimpleDateFormat("MMM").format(day)
+            OnedApp.sApp.mMarkwon.setMarkdown(mBinding.content, it.mStory.content.trim())
+            mBinding.content.movementMethod = LinkMovementMethod.getInstance()
             itemView.tag = it
         }
     }
