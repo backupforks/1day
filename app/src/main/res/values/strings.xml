@@ -28,5 +28,6 @@
     <string name="story_view">Story View</string>
     <string name="story_view_list">Story List</string>
     <string name="story_view_pager">Story Pager</string>
+    <string name="story_view_monthlist">Story by Months</string>
 
 </resources>

@@ -15,7 +15,7 @@ import java.text.SimpleDateFormat
 /**
  * RecyclerView adapter for a list of story.
  */
-open class StoryListAdapter(private val mFragment: StoryFragment, private val viewModel: StoryViewModel) :
+class StoryListAdapter(private val mFragment: StoryFragment, private val viewModel: StoryViewModel) :
         StoryAdapter<StoryViewHolder>(mFragment.requireContext()) {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): StoryViewHolder {
@@ -29,7 +29,6 @@ open class StoryListAdapter(private val mFragment: StoryFragment, private val vi
 
     override fun onBindViewHolder(holder: StoryViewHolder, position: Int) {
         holder.bind(getStory(position))
-        Log.d(StoryAdapter.TAG, "onBindViewHolder $position $itemCount")
         if (position == itemCount - 1) {
             viewModel.loadNext()
         }

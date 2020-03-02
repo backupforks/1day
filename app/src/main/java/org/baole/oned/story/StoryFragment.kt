@@ -2,7 +2,6 @@ package org.baole.oned.story
 
 import android.content.Intent
 import android.os.Bundle
-import android.text.format.DateUtils
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import com.google.firebase.auth.FirebaseAuth
@@ -12,7 +11,6 @@ import com.google.firebase.firestore.Query
 import org.baole.oned.MainActivity
 import org.baole.oned.StoryEditorActivity
 import org.baole.oned.model.Story
-import org.baole.oned.util.AppState
 import org.baole.oned.util.FirestoreUtil
 
 open class StoryFragment : Fragment() {
@@ -25,14 +23,17 @@ open class StoryFragment : Fragment() {
         super.onCreate(savedInstanceState)
         setHasOptionsMenu(false)
         mViewModel = ViewModelProvider(this).get(StoryViewModel::class.java)
-        initFirestore()
+        setupFirestore()
     }
-    fun initFirestore() {
+    fun setupFirestore() {
         mFirestore = FirebaseFirestore.getInstance()
         mFirebaseUser = FirebaseAuth.getInstance().currentUser
+        setupQuery()
+    }
+
+    open fun setupQuery() {
         mQuery = FirestoreUtil.story(mFirestore, mFirebaseUser)
                 .orderBy(Story.FIELD_DAY, Query.Direction.DESCENDING)
-                .limit(LIMIT)
     }
 
     fun main(): MainActivity? {
@@ -41,16 +42,11 @@ open class StoryFragment : Fragment() {
         else return null
     }
 
-    fun hasTodayStory (): Boolean {
-        return AppState.get(context!!).hasTodayStory()
-    }
-
     fun editStory(storyId: String = "") {
         startActivity(Intent(activity, StoryEditorActivity::class.java).putExtra(FirestoreUtil.FIELD_ID, storyId))
     }
 
     companion object {
-        const val LIMIT = 5L
         val TAG = StoryFragment::class.java.simpleName
     }
 }

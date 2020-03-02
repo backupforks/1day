@@ -15,6 +15,7 @@ import com.google.firebase.firestore.ListenerRegistration
 import org.baole.oned.databinding.MainActivityBinding
 import org.baole.oned.model.Story
 import org.baole.oned.story.list.StoryListFragment
+import org.baole.oned.story.monthlist.MonthListFragment
 import org.baole.oned.story.pager.StoryPagerFragment
 import org.baole.oned.util.AppState
 import org.baole.oned.util.FirestoreUtil
@@ -55,7 +56,7 @@ class MainActivity : AppCompatActivity() {
         val fragment = when(AppState.get(this).getViewMode()) {
             AppState.VIEW_MODE_PAGER -> StoryPagerFragment()
             AppState.VIEW_MODE_LIST -> StoryListFragment()
-//            AppState.VIEW_MODE_BLOCK -> StoryBlockFragment()
+            AppState.VIEW_MODE_MONTHLIST -> MonthListFragment()
             else -> StoryListFragment()
         }
         supportFragmentManager.beginTransaction().replace(R.id.content, fragment).commitAllowingStateLoss()
@@ -77,9 +78,9 @@ class MainActivity : AppCompatActivity() {
                      it.setIcon(R.drawable.ic_view_list_black_24dp)
                      menu.findItem(R.id.menu_view_list)?.isChecked = true
                  }
-                 AppState.VIEW_MODE_BLOCK -> {
-                     it.setIcon(R.drawable.ic_view_carousel_black_24dp)
-                     menu.findItem(R.id.menu_view_block)?.isChecked = true
+                 AppState.VIEW_MODE_MONTHLIST -> {
+                     it.setIcon(R.drawable.ic_grid_on_black_24dp)
+                     menu.findItem(R.id.menu_view_monthlist)?.isChecked = true
                  }
              }
          }
@@ -112,8 +113,8 @@ class MainActivity : AppCompatActivity() {
                 onSelectView(AppState.VIEW_MODE_PAGER)
             }
 
-            R.id.menu_view_block -> {
-                onSelectView(AppState.VIEW_MODE_BLOCK)
+            R.id.menu_view_monthlist -> {
+                onSelectView(AppState.VIEW_MODE_MONTHLIST)
             }
 
             R.id.menu_new_story -> {

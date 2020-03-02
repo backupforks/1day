@@ -50,6 +50,7 @@ class StoryViewModel : ViewModel() {
 
     private val mSnapshots = ArrayList<DocumentSnapshot>()
     private val mHeader = StoryAdapterData(StoryAdapterData.ITEM_TYPE_HEADER)
+    var mCheckToday = true
 
     init {
         OnedApp.sApp.mStoryObservable.addObserver { observer, arg ->
@@ -94,10 +95,11 @@ class StoryViewModel : ViewModel() {
 
     private fun updateData() {
         val newData = mutableListOf<StoryAdapterData>()
-        val hasTodayData = AppState.get(OnedApp.sApp).hasTodayStory()
-        Log.d(TAG, "hasTodayData=$hasTodayData")
-        if(!hasTodayData) {
-            newData.add(mHeader)
+        if(mCheckToday) {
+            val hasTodayData = AppState.get(OnedApp.sApp).hasTodayStory()
+            if (!hasTodayData) {
+                newData.add(mHeader)
+            }
         }
 
         newData.addAll(mStories)

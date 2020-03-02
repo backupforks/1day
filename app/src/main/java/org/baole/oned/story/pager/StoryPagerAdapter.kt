@@ -30,7 +30,6 @@ class StoryPagerAdapter(private val mFragment: StoryFragment, private val viewMo
 
     override fun onBindViewHolder(holder: StoryViewHolder, position: Int) {
         holder.bind(getStory(position))
-        Log.d(StoryAdapter.TAG, "onBindViewHolder $position $itemCount")
         if (position == itemCount - 1) {
             viewModel.loadNext()
         }

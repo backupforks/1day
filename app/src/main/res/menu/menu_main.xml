@@ -19,9 +19,9 @@
                 android:title="@string/story_view_pager"
                 app:iconTint="?attr/colorControlNormal" />
             <item
-                android:id="@+id/menu_view_block"
-                android:icon="@drawable/ic_view_carousel_black_24dp"
-                android:title="@string/story_view_pager"
+                android:id="@+id/menu_view_monthlist"
+                android:icon="@drawable/ic_grid_on_black_24dp"
+                android:title="@string/story_view_monthlist"
                 app:iconTint="?attr/colorControlNormal" />
         </menu>
     </item>
