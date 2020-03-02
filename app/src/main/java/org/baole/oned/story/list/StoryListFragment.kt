@@ -4,16 +4,20 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.lifecycle.Observer
+import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.android.material.snackbar.Snackbar
 import com.google.firebase.firestore.FirebaseFirestoreException
 import org.baole.oned.R
 import org.baole.oned.story.StoryFragment
 import org.baole.oned.databinding.StoryListFragmentBinding
+import org.baole.oned.story.StoryViewModel
 
 
 class StoryListFragment : StoryFragment() {
 
+    private lateinit var mViewModel: StoryViewModel
     private lateinit var mAdapter: StoryListAdapter
     private lateinit var mBinding: StoryListFragmentBinding
 
@@ -24,11 +28,18 @@ class StoryListFragment : StoryFragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        mViewModel = ViewModelProvider(this).get(StoryViewModel::class.java)
         initRecyclerView()
+
+        mViewModel.setQuery(mQuery)
+        mViewModel.mStoryLiveData.observe(viewLifecycleOwner, Observer {
+            mAdapter.setStories(it.adapterData)
+            main()?.showEmptyView(!it.hasData)
+        })
     }
 
     private fun initRecyclerView() {
-        mAdapter = object : StoryListAdapter(context!!, mQuery, {
+        mAdapter = object : StoryListAdapter(context!!, mViewModel, {
             editStory()
         }, {
             editStory(it.mDocumentId)
@@ -49,12 +60,12 @@ class StoryListFragment : StoryFragment() {
 
     override fun onStart() {
         super.onStart()
-        mAdapter.startListening()
+        mViewModel.startListening()
     }
 
     override fun onStop() {
         super.onStop()
-        mAdapter.stopListening()
+        mViewModel.stopListening()
     }
 
 

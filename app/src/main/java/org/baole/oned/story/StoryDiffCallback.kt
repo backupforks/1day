@@ -3,7 +3,7 @@ package org.baole.oned.story
 import androidx.recyclerview.widget.DiffUtil
 
 
-class StoryDiffCallback(val newPersons: List<StoryData>, val oldPersons: List<StoryData>) : DiffUtil.Callback() {
+class StoryDiffCallback(val newPersons: List<StoryAdapterData>, val oldPersons: List<StoryAdapterData>) : DiffUtil.Callback() {
 
     override fun getOldListSize(): Int {
         return oldPersons.size
@@ -14,7 +14,7 @@ class StoryDiffCallback(val newPersons: List<StoryData>, val oldPersons: List<St
     }
 
     override fun areItemsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean {
-        return oldPersons[oldItemPosition].mDocumentId === newPersons[newItemPosition].mDocumentId
+        return oldPersons[oldItemPosition].areItemsTheSame(newPersons[newItemPosition])
     }
 
     override fun areContentsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean {
