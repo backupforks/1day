@@ -3,13 +3,18 @@ package org.baole.oned
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
+import android.text.Editable
+import android.text.TextWatcher
 import android.text.format.DateUtils
 import android.util.Log
+import android.view.KeyEvent
 import android.view.Menu
 import android.view.MenuItem
+import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.InputMethodManager
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.os.bundleOf
+import androidx.core.widget.addTextChangedListener
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.firestore.DocumentSnapshot
@@ -35,19 +40,18 @@ class StoryEditorActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         mBinding = StoryEditorActivityBinding.inflate(layoutInflater)
         setContentView(mBinding.root)
-        setSupportActionBar(mBinding.toolbar)
+        setupToolbar()
+        setupFirestore()
+        setupSaveButton()
+        setupEditor()
+    }
 
-        mBinding.toolbar.setOnClickListener {
-            val newFragment = DatePickerFragment()
-            newFragment.arguments = bundleOf(Story.FIELD_DAY to mStory.day)
-            newFragment.onKeySelected = {
-                onDaySelected(it)
-            }
-            newFragment.show(supportFragmentManager, "datePicker")
-        }
+    private fun setupEditor() {
 
-        mFirestore = FirebaseFirestore.getInstance()
-        mFirebaesUser = FirebaseAuth.getInstance().currentUser
+
+    }
+
+    private fun setupSaveButton() {
         mBinding.save.setOnClickListener {
             mStoryDocumentSnapshot?.let {
                 updateStory(it, mBinding.editor.text.toString())
@@ -55,11 +59,11 @@ class StoryEditorActivity : AppCompatActivity() {
                 createStory(mBinding.editor.text.toString())
             }
         }
-
-        queryStory()
     }
 
-    private fun queryStory() {
+    private fun setupFirestore() {
+        mFirestore = FirebaseFirestore.getInstance()
+        mFirebaesUser = FirebaseAuth.getInstance().currentUser
         mStoryId = intent.getStringExtra(FirestoreUtil.FIELD_ID) ?: throw RuntimeException("No ${FirestoreUtil.FIELD_ID} found")
         if (mStoryId.isEmpty()) {
             onDaySelected(DateUtil.day2key())
@@ -70,6 +74,18 @@ class StoryEditorActivity : AppCompatActivity() {
         }
     }
 
+    private fun setupToolbar() {
+        setSupportActionBar(mBinding.toolbar)
+
+        mBinding.toolbar.setOnClickListener {
+            val newFragment = DatePickerFragment()
+            newFragment.arguments = bundleOf(Story.FIELD_DAY to mStory.day)
+            newFragment.onKeySelected = {
+                onDaySelected(it)
+            }
+            newFragment.show(supportFragmentManager, "datePicker")
+        }
+    }
     private fun onDaySelected(day: String) {
         mNewDay = day
         FirestoreUtil.dayQuery(mFirestore, mFirebaesUser, day).addSnapshotListener { querySnapshot, firebaseFirestoreException ->
