@@ -53,9 +53,9 @@ class StoryViewModel : ViewModel() {
 
     init {
         OnedApp.sApp.mStoryObservable.addObserver { observer, arg ->
-            Log.d(StoryAdapter.TAG, "addObserver $observer $arg")
+            Log.d(TAG, "addObserver $observer $arg")
             (observer as StoryObservable).getData()?.let {
-                Log.d(StoryAdapter.TAG, "addObserver data=${it.data.mStory.content}")
+                Log.d(TAG, "addObserver data=${it.data.mStory.content}")
                 updateStory(it)
             }
         }
@@ -113,8 +113,9 @@ class StoryViewModel : ViewModel() {
     }
 
     private fun onSnapshot(querySnapshot: QuerySnapshot?, firebaseFirestoreException: FirebaseFirestoreException?) {
-        Log.d(StoryAdapter.TAG, "onSnapshot ${querySnapshot?.documents?.size}")
-        hasNext = querySnapshot?.documents?.size ?: 0 >= mLimit
+        val storyCount = querySnapshot?.documents?.size ?: 0
+        Log.d(TAG, "onSnapshot ${storyCount}")
+        hasNext = storyCount >= mLimit
         val lastSize = mStories.size
         var addedItemCount = 0
         querySnapshot?.documents?.forEach {
@@ -133,7 +134,7 @@ class StoryViewModel : ViewModel() {
             mLastSnapshot = it
         }
 
-        if (addedItemCount > 0) {
+        if (addedItemCount > 0 || storyCount == 0) {
             updateData()
         }
     }

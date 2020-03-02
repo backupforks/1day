@@ -109,8 +109,8 @@ class StoryEditorActivity : AppCompatActivity() {
                 finish()
             }.addOnFailureListener { it.printStackTrace() }
         }
-        OnedApp.sApp.mStoryObservable.setData(StoryEditorEvent(StoryEditorEvent.TYPE_ADDED, StoryAdapterItem(documentReference.id, story)))
         AppState.get(this).markLastStoryTimestamp(DateUtil.key2date(mStory.day).time)
+        OnedApp.sApp.mStoryObservable.setData(StoryEditorEvent(StoryEditorEvent.TYPE_ADDED, StoryAdapterItem(documentReference.id, story)))
     }
 
     private fun updateStory(snapshot: DocumentSnapshot, newText: String) {
@@ -161,10 +161,7 @@ class StoryEditorActivity : AppCompatActivity() {
     private fun deleteStory() {
         mStoryDocumentSnapshot?.let {
             val task = FirestoreUtil.day(mFirestore, mFirebaesUser, it.id).delete()
-
-            if (DateUtils.isToday(DateUtil.key2date(mStory.day).time)) {
-                AppState.get(this).clearLastStoryTimestamp()
-            }
+            AppState.get(this).clearLastStoryTimestamp(DateUtil.key2date(mStory.day).time)
             OnedApp.sApp.mStoryObservable.setData(StoryEditorEvent(StoryEditorEvent.TYPE_DELETED, StoryAdapterItem(it.id, mStory)))
 
             if (isSignedIn()) {
