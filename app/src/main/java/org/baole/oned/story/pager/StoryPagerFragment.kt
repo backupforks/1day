@@ -5,16 +5,18 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.lifecycle.Observer
 import com.google.android.material.snackbar.Snackbar
 import com.google.firebase.firestore.FirebaseFirestoreException
 import org.baole.oned.R
 import org.baole.oned.story.StoryFragment
 import org.baole.oned.databinding.StoryPagerFragmentBinding
+import org.baole.oned.story.list.StoryListFragment
 
 
 class StoryPagerFragment : StoryFragment() {
 
-    private lateinit var mAdapter: StoryAdapter
+    private lateinit var mAdapter: StoryPagerAdapter
     private lateinit var mBinding: StoryPagerFragmentBinding
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
@@ -24,45 +26,36 @@ class StoryPagerFragment : StoryFragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        initViewPager()
+        setupViewPager()
+        setupViewModel()
     }
 
-    private fun initViewPager() {
-        mAdapter = object : StoryAdapter(mQuery, {
-            editStory()
-        }, {
-            editStory(it.id)
-        }, if (hasTodayStory()) 0 else 1) {
-            override fun onDataChanged() {
-                main()?.showEmptyView(itemCount <= headerItemCount)
-                val newHeaderItemCount = if (hasTodayStory()) 0 else 1
-
-                Log.d(TAG, "onDataChanged $newHeaderItemCount")
-                if (newHeaderItemCount != headerItemCount) {
-                    updateHeaderItemCount(newHeaderItemCount)
-                }
-            }
-
-            override fun onError(e: FirebaseFirestoreException) {
-                Snackbar.make(mBinding.root, R.string.error_load_data, Snackbar.LENGTH_LONG).show()
-            }
-        }
-
+    private fun setupViewPager() {
+        mAdapter = StoryPagerAdapter(this, mViewModel)
         mBinding.viewPager.adapter = mAdapter
+    }
+
+    private fun setupViewModel() {
+        mViewModel.setQuery(mQuery, ITEM_PER_PAGE)
+        mViewModel.mStoryLiveData.observe(viewLifecycleOwner, Observer {
+            mAdapter.setStories(it.adapterData)
+            main()?.showEmptyView(!it.hasData)
+        })
     }
 
     override fun onStart() {
         super.onStart()
-        mAdapter.startListening()
+        mViewModel.startListening()
     }
 
     override fun onStop() {
         super.onStop()
-        mAdapter.stopListening()
+        mViewModel.stopListening()
     }
 
 
     companion object {
+        private const val ITEM_PER_PAGE = 5L
         private val TAG = StoryPagerFragment::class.java.simpleName
     }
 }

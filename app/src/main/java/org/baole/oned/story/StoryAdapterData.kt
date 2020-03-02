@@ -12,11 +12,11 @@ open class StoryAdapterData(val type: Int) {
     open fun areItemsTheSame(other: StoryAdapterData): Boolean = true
 }
 
-class StoryDataItem(val mDocumentId: String, val mStory: Story): StoryAdapterData(ITEM_TYPE_DATA) {
+class StoryAdapterItem(val mDocumentId: String, val mStory: Story): StoryAdapterData(ITEM_TYPE_DATA) {
     var timestamp: Long = 0
 
     override fun areItemsTheSame(other: StoryAdapterData): Boolean {
-        return if (other is StoryDataItem) {
+        return if (other is StoryAdapterItem) {
             mDocumentId === other.mDocumentId
         } else {
             false

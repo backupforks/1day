@@ -1,10 +1,10 @@
 package org.baole.oned.util
 
-import org.baole.oned.story.StoryDataItem
+import org.baole.oned.story.StoryAdapterItem
 import java.util.*
 
 
-class StoryEditorEvent(val type: Int, val data: StoryDataItem) {
+class StoryEditorEvent(val type: Int, val data: StoryAdapterItem) {
     companion object {
         const val TYPE_ADDED = 0
         const val TYPE_UPDATED = 1

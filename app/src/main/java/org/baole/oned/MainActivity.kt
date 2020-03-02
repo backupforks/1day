@@ -2,13 +2,11 @@ package org.baole.oned
 
 import android.content.Intent
 import android.os.Bundle
-import android.text.format.DateUtils
 import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
-import androidx.lifecycle.ViewModelProvider
 import com.firebase.ui.auth.AuthUI
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
@@ -16,17 +14,13 @@ import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.ListenerRegistration
 import org.baole.oned.databinding.MainActivityBinding
 import org.baole.oned.model.Story
-import org.baole.oned.story.ex.StoryBlockFragment
 import org.baole.oned.story.list.StoryListFragment
 import org.baole.oned.story.pager.StoryPagerFragment
 import org.baole.oned.util.AppState
-import org.baole.oned.util.DateUtil
 import org.baole.oned.util.FirestoreUtil
-import org.baole.oned.viewmodel.MainActivityViewModel
 
 class MainActivity : AppCompatActivity() {
     private lateinit var mFirestore: FirebaseFirestore
-    private lateinit var mViewModel: MainActivityViewModel
     private lateinit var mBinding: MainActivityBinding
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -35,7 +29,6 @@ class MainActivity : AppCompatActivity() {
         setContentView(mBinding.root)
 
         setSupportActionBar(mBinding.toolbar)
-        mViewModel = ViewModelProvider(this).get(MainActivityViewModel::class.java)
 
         setupFirestore()
         initEmptyView()
@@ -62,7 +55,7 @@ class MainActivity : AppCompatActivity() {
         val fragment = when(AppState.get(this).getViewMode()) {
             AppState.VIEW_MODE_PAGER -> StoryPagerFragment()
             AppState.VIEW_MODE_LIST -> StoryListFragment()
-            AppState.VIEW_MODE_BLOCK -> StoryBlockFragment()
+//            AppState.VIEW_MODE_BLOCK -> StoryBlockFragment()
             else -> StoryListFragment()
         }
         supportFragmentManager.beginTransaction().replace(R.id.content, fragment).commitAllowingStateLoss()

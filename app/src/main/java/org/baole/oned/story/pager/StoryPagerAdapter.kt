@@ -1,4 +1,4 @@
-package org.baole.oned.story.list
+package org.baole.oned.story.pager
 
 import android.util.Log
 import android.view.LayoutInflater
@@ -7,6 +7,7 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import org.baole.oned.R
 import org.baole.oned.databinding.StoryListItemBinding
+import org.baole.oned.databinding.StoryPagerItemBinding
 import org.baole.oned.story.*
 import org.baole.oned.util.DateUtil
 import org.baole.oned.util.TextUtil
@@ -15,15 +16,15 @@ import java.text.SimpleDateFormat
 /**
  * RecyclerView adapter for a list of story.
  */
-open class StoryListAdapter(private val mFragment: StoryFragment, private val viewModel: StoryViewModel) :
+class StoryPagerAdapter(private val mFragment: StoryFragment, private val viewModel: StoryViewModel) :
         StoryAdapter<StoryViewHolder>(mFragment.requireContext()) {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): StoryViewHolder {
         val inflater = LayoutInflater.from(parent.context)
         return if (viewType == StoryAdapterData.ITEM_TYPE_HEADER) {
-            StoryHeaderViewHolder(inflater.inflate(R.layout.story_list_header, parent, false), mFragment)
+            StoryHeaderViewHolder(inflater.inflate(R.layout.story_pager_header, parent, false), mFragment)
         } else {
-            StoryItemViewHolder(inflater.inflate(R.layout.story_list_item, parent, false), mFragment)
+            StoryItemViewHolder(inflater.inflate(R.layout.story_pager_item, parent, false), mFragment)
         }
     }
 
@@ -52,7 +53,7 @@ class StoryHeaderViewHolder(itemView: View, private val fragment: StoryFragment)
 }
 
 class StoryItemViewHolder(itemView: View, private val mFragment: StoryFragment) : StoryViewHolder(itemView) {
-    var binding = StoryListItemBinding.bind(itemView)
+    var binding = StoryPagerItemBinding.bind(itemView)
 
     init {
         itemView.setOnClickListener {
@@ -65,8 +66,7 @@ class StoryItemViewHolder(itemView: View, private val mFragment: StoryFragment) 
     override fun bind(story: StoryAdapterData) {
         (story as StoryAdapterItem).let {
             val day = DateUtil.key2date(it.mStory.day)
-            binding.day.text = SimpleDateFormat("dd").format(day)
-            binding.month.text = SimpleDateFormat("MMM").format(day)
+            binding.day.text = SimpleDateFormat.getDateInstance(SimpleDateFormat.MEDIUM).format(day)
             binding.content.text = TextUtil.markdown2text(it.mStory.content.trim())
             itemView.tag = it
         }

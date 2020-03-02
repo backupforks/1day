@@ -5,19 +5,12 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.lifecycle.Observer
-import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.google.android.material.snackbar.Snackbar
-import com.google.firebase.firestore.FirebaseFirestoreException
-import org.baole.oned.R
-import org.baole.oned.story.StoryFragment
 import org.baole.oned.databinding.StoryListFragmentBinding
-import org.baole.oned.story.StoryViewModel
+import org.baole.oned.story.StoryFragment
 
 
 class StoryListFragment : StoryFragment() {
-
-    private lateinit var mViewModel: StoryViewModel
     private lateinit var mAdapter: StoryListAdapter
     private lateinit var mBinding: StoryListFragmentBinding
 
@@ -28,34 +21,22 @@ class StoryListFragment : StoryFragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        mViewModel = ViewModelProvider(this).get(StoryViewModel::class.java)
-        initRecyclerView()
+        setupRecyclerView()
+        setupViewModel()
+    }
 
-        mViewModel.setQuery(mQuery)
+    private fun setupRecyclerView() {
+        mAdapter = StoryListAdapter(this, mViewModel)
+        mBinding.recyclerStories.layoutManager = LinearLayoutManager(context)
+        mBinding.recyclerStories.adapter = mAdapter
+    }
+
+    private fun setupViewModel() {
+        mViewModel.setQuery(mQuery, ITEM_PER_PAGE)
         mViewModel.mStoryLiveData.observe(viewLifecycleOwner, Observer {
             mAdapter.setStories(it.adapterData)
             main()?.showEmptyView(!it.hasData)
         })
-    }
-
-    private fun initRecyclerView() {
-        mAdapter = object : StoryListAdapter(context!!, mViewModel, {
-            editStory()
-        }, {
-            editStory(it.mDocumentId)
-        }) {
-            override fun onDataChanged() {
-                //TODO
-                main()?.showEmptyView(itemCount <= 1)
-            }
-
-            override fun onError(e: FirebaseFirestoreException) {
-                Snackbar.make(mBinding.root, R.string.error_load_data, Snackbar.LENGTH_LONG).show()
-            }
-        }
-
-        mBinding.recyclerStories.layoutManager = LinearLayoutManager(context)
-        mBinding.recyclerStories.adapter = mAdapter
     }
 
     override fun onStart() {
@@ -68,8 +49,8 @@ class StoryListFragment : StoryFragment() {
         mViewModel.stopListening()
     }
 
-
     companion object {
+        private const val ITEM_PER_PAGE = 5L
         private val TAG = StoryListFragment::class.java.simpleName
     }
 }

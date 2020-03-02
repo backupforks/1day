@@ -64,7 +64,8 @@ dependencies {
     // FirebaseUI (for authentication)
     implementation 'com.firebaseui:firebase-ui-auth:6.2.0'
     implementation "com.firebaseui:firebase-ui-firestore:4.3.2"
-    implementation 'android.arch.paging:runtime:1.0.1'
+
+    //instant apps
     implementation "com.google.android.gms:play-services-instantapps:17.0.0"
 
     // Support Libs

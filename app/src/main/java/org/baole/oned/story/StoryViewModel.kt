@@ -27,7 +27,7 @@ import org.baole.oned.util.StoryObservable
 import java.util.*
 
 /**
- * ViewModel for [org.baole.oned.MainActivity].
+ * ViewModel for Story list.
  */
 
 class StoryData(val hasData: Boolean, val adapterData: List<StoryAdapterData>)
@@ -38,13 +38,13 @@ class StoryViewModel : ViewModel() {
         val TAG = StoryViewModel::class.java.simpleName
     }
 
-
     val mStoryLiveData = MutableLiveData<StoryData>()
     lateinit var mQuery: Query
+    private var mLimit = 5L
 
     private var mRegistration: ListenerRegistration? = null
-    private var mStories = mutableListOf<StoryDataItem>()
-    private val mStoriesMap = mutableMapOf<String, StoryDataItem>()
+    private var mStories = mutableListOf<StoryAdapterItem>()
+    private val mStoriesMap = mutableMapOf<String, StoryAdapterItem>()
     private var hasNext = false
     private var mLastSnapshot: DocumentSnapshot? = null
 
@@ -61,12 +61,14 @@ class StoryViewModel : ViewModel() {
         }
     }
 
-    fun setQuery(query: Query) {
+    fun setQuery(query: Query, limit: Long) {
         this.mQuery = query
+        this.mLimit = limit
+        this.mQuery.limit(limit)
     }
 
     fun updateStory(data: StoryEditorEvent) {
-        val newStories = mutableListOf<StoryDataItem>()
+        val newStories = mutableListOf<StoryAdapterItem>()
         when(data.type) {
             StoryEditorEvent.TYPE_ADDED -> {
                 mStoriesMap[data.data.mDocumentId] = data.data
@@ -104,7 +106,6 @@ class StoryViewModel : ViewModel() {
 
     fun startListening() {
         if (mRegistration == null) {
-            mQuery.limit(StoryAdapter.ITEM_PER_PAGE.toLong())
             mRegistration = mQuery.addSnapshotListener { querySnapshot, firebaseFirestoreException ->
                 onSnapshot(querySnapshot, firebaseFirestoreException)
             }
@@ -113,7 +114,7 @@ class StoryViewModel : ViewModel() {
 
     private fun onSnapshot(querySnapshot: QuerySnapshot?, firebaseFirestoreException: FirebaseFirestoreException?) {
         Log.d(StoryAdapter.TAG, "onSnapshot ${querySnapshot?.documents?.size}")
-        hasNext = querySnapshot?.documents?.size ?: 0 >= StoryAdapter.ITEM_PER_PAGE
+        hasNext = querySnapshot?.documents?.size ?: 0 >= mLimit
         val lastSize = mStories.size
         var addedItemCount = 0
         querySnapshot?.documents?.forEach {
@@ -121,7 +122,7 @@ class StoryViewModel : ViewModel() {
             Log.d(StoryAdapter.TAG, "onSnapshot add item $id")
             if (!mStoriesMap.containsKey(id)) {
                 it.toObject(Story::class.java)?.let { story ->
-                    val item = StoryDataItem(it.id, story)
+                    val item = StoryAdapterItem(it.id, story)
                     mStories.add(item)
                     mSnapshots.add(it)
                     mStoriesMap[id] = item

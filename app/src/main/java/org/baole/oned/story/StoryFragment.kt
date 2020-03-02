@@ -4,6 +4,7 @@ import android.content.Intent
 import android.os.Bundle
 import android.text.format.DateUtils
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.ViewModelProvider
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.firestore.FirebaseFirestore
@@ -15,6 +16,7 @@ import org.baole.oned.util.AppState
 import org.baole.oned.util.FirestoreUtil
 
 open class StoryFragment : Fragment() {
+    lateinit var mViewModel: StoryViewModel
     var mFirebaseUser: FirebaseUser? = null
     lateinit var mFirestore: FirebaseFirestore
     lateinit var mQuery: Query
@@ -22,9 +24,9 @@ open class StoryFragment : Fragment() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setHasOptionsMenu(false)
+        mViewModel = ViewModelProvider(this).get(StoryViewModel::class.java)
         initFirestore()
     }
-
     fun initFirestore() {
         mFirestore = FirebaseFirestore.getInstance()
         mFirebaseUser = FirebaseAuth.getInstance().currentUser

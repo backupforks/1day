@@ -16,7 +16,7 @@ import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.FirebaseFirestore
 import org.baole.oned.databinding.StoryEditorActivityBinding
 import org.baole.oned.model.Story
-import org.baole.oned.story.StoryDataItem
+import org.baole.oned.story.StoryAdapterItem
 import org.baole.oned.util.AppState
 import org.baole.oned.util.DateUtil
 import org.baole.oned.util.FirestoreUtil
@@ -61,7 +61,6 @@ class StoryEditorActivity : AppCompatActivity() {
 
     private fun queryStory() {
         mStoryId = intent.getStringExtra(FirestoreUtil.FIELD_ID) ?: throw RuntimeException("No ${FirestoreUtil.FIELD_ID} found")
-        Log.w(TAG, "storyId: $mStoryId")
         if (mStoryId.isEmpty()) {
             onDaySelected(DateUtil.day2key())
         } else {
@@ -110,7 +109,7 @@ class StoryEditorActivity : AppCompatActivity() {
                 finish()
             }.addOnFailureListener { it.printStackTrace() }
         }
-        OnedApp.sApp.mStoryObservable.setData(StoryEditorEvent(StoryEditorEvent.TYPE_ADDED, StoryDataItem(documentReference.id, story)))
+        OnedApp.sApp.mStoryObservable.setData(StoryEditorEvent(StoryEditorEvent.TYPE_ADDED, StoryAdapterItem(documentReference.id, story)))
         AppState.get(this).markLastStoryTimestamp(DateUtil.key2date(mStory.day).time)
     }
 
@@ -131,7 +130,7 @@ class StoryEditorActivity : AppCompatActivity() {
                     it.printStackTrace()
                 }
             }
-            OnedApp.sApp.mStoryObservable.setData(StoryEditorEvent(StoryEditorEvent.TYPE_UPDATED, StoryDataItem(snapshot.id, Story(mStory.day, newText))))
+            OnedApp.sApp.mStoryObservable.setData(StoryEditorEvent(StoryEditorEvent.TYPE_UPDATED, StoryAdapterItem(snapshot.id, Story(mStory.day, newText))))
         } else {
             finish()
         }
@@ -166,7 +165,7 @@ class StoryEditorActivity : AppCompatActivity() {
             if (DateUtils.isToday(DateUtil.key2date(mStory.day).time)) {
                 AppState.get(this).clearLastStoryTimestamp()
             }
-            OnedApp.sApp.mStoryObservable.setData(StoryEditorEvent(StoryEditorEvent.TYPE_DELETED, StoryDataItem(it.id, mStory)))
+            OnedApp.sApp.mStoryObservable.setData(StoryEditorEvent(StoryEditorEvent.TYPE_DELETED, StoryAdapterItem(it.id, mStory)))
 
             if (isSignedIn()) {
                 finish()
