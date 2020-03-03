@@ -66,8 +66,8 @@ class StoryEditorActivity : AppCompatActivity() {
                 mBinding.keyboardView.visibility = View.VISIBLE
             } else {
                 if (mIsKeyboardManualTrigger) {
-                    setViewHeight(mBinding.keyboardRoot, mKeyboardTopHeight)
-                    mBinding.keyboardView.visibility = View.GONE
+//                    setViewHeight(mBinding.keyboardRoot, mKeyboardTopHeight)
+//                    mBinding.keyboardView.visibility = View.GONE
                 } else {
                     mBinding.keyboardRoot.visibility = View.GONE
                 }
@@ -77,9 +77,27 @@ class StoryEditorActivity : AppCompatActivity() {
         }
 
         mBinding.editorbar.layoutManager = LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false)
+        val listener: (StoryEditText, Action) -> Unit = {view, action ->
+            if (action is MarkdownAction) {
+                action.onAction(view)
+            } else {
+                if (action.id == 1) {
+                    if (mIsKeyboardOpen) {
+                        hideSoftKeyboard()
+                    } else {
+                        showSoftKeyboard()
+                    }
+                }
+            }
+        }
+        val editorBarAdapter = EditorActionAdapter(mBinding.editor, listener)
+        mBinding.editorbar.adapter = editorBarAdapter
+        editorBarAdapter.setActions(ActionManager.buildActionBar())
 
-
-        mBinding.keyboardView.layoutManager = GridLayoutManager(this, 4)
+        mBinding.keyboardView.layoutManager = GridLayoutManager(this, 5)
+        val keyboardViewAdapter = EditorActionAdapter(mBinding.editor, listener)
+        mBinding.keyboardView.adapter = keyboardViewAdapter
+        keyboardViewAdapter.setActions(ActionManager.buildKeyboardTool())
 
 
 //        mBinding.actionKeyboard.setOnClickListener {

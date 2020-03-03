@@ -8,7 +8,7 @@ import org.baole.oned.R
 import org.baole.oned.databinding.StoryEditorActionHolderBinding
 
 class EditorActionAdapter(private val editor: StoryEditText, private val listener: ((StoryEditText, Action) -> Unit)) : RecyclerView.Adapter<EditorActionHolder>() {
-    var actions = mutableListOf<Action>()
+    private var actions = listOf<Action>()
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): EditorActionHolder {
         val inflater = LayoutInflater.from(parent.context)
@@ -21,6 +21,11 @@ class EditorActionAdapter(private val editor: StoryEditText, private val listene
 
     override fun getItemCount(): Int {
         return actions.size
+    }
+
+    fun setActions(actions: List<Action>) {
+        this.actions = actions
+        this.notifyDataSetChanged()
     }
 }
 

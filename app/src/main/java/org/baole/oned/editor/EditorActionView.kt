@@ -32,7 +32,7 @@ class EditorActionView @JvmOverloads constructor(
                 bindIcon()
             }
 
-            Action.TYPE_TEXt -> {
+            Action.TYPE_TEXT -> {
                 bindText()
             }
 
