@@ -11,7 +11,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content" />
 
-    <androidx.appcompat.widget.AppCompatEditText
+    <org.baole.oned.editor.StoryEditText
         android:id="@+id/editor"
         android:layout_width="match_parent"
         android:layout_height="0dp"
@@ -46,6 +46,15 @@
                 app:tint="?attr/colorControlNormal"
                 android:background="?attr/selectableItemBackground"
                 app:srcCompat="@drawable/ic_keyboard_black_12dp" />
+
+            <androidx.appcompat.widget.AppCompatTextView
+                android:id="@+id/action_bold"
+                android:text="B**|**"
+                android:layout_width="@dimen/keyboard_top_height"
+                android:layout_height="@dimen/keyboard_top_height"
+                android:textColor="?android:attr/textColorPrimary"
+                android:background="?attr/selectableItemBackground"
+                />
         </LinearLayout>
 
         <androidx.recyclerview.widget.RecyclerView

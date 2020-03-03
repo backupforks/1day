@@ -81,6 +81,9 @@ class StoryEditorActivity : AppCompatActivity() {
                 showSoftKeyboard()
             }
         }
+        mBinding.actionBold.setOnClickListener {
+            mBinding.editor.insertText("****", 2)
+        }
     }
 
     private fun setViewHeight(keyboardRoot: ViewGroup, newHeight: Int) {
