@@ -11,6 +11,8 @@ import android.view.ViewGroup
 import android.view.inputmethod.InputMethodManager
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.os.bundleOf
+import androidx.recyclerview.widget.GridLayoutManager
+import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.firestore.DocumentSnapshot
@@ -74,16 +76,22 @@ class StoryEditorActivity : AppCompatActivity() {
             mIsKeyboardOpen = keyboardOpen
         }
 
-        mBinding.actionKeyboard.setOnClickListener {
-            if (mIsKeyboardOpen) {
-                hideSoftKeyboard()
-            } else {
-                showSoftKeyboard()
-            }
-        }
-        mBinding.actionBold.setOnClickListener {
-            mBinding.editor.insertText("****", 2)
-        }
+        mBinding.editorbar.layoutManager = LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false)
+
+
+        mBinding.keyboardView.layoutManager = GridLayoutManager(this, 4)
+
+
+//        mBinding.actionKeyboard.setOnClickListener {
+//            if (mIsKeyboardOpen) {
+//                hideSoftKeyboard()
+//            } else {
+//                showSoftKeyboard()
+//            }
+//        }
+//        mBinding.actionBold.setOnClickListener {
+//            mBinding.editor.insertText("****", 2)
+//        }
     }
 
     private fun setViewHeight(keyboardRoot: ViewGroup, newHeight: Int) {
