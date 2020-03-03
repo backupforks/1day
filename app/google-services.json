@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "761859986566",
+    "firebase_url": "https://s1dapp.firebaseio.com",
+    "project_id": "s1dapp",
+    "storage_bucket": "s1dapp.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:761859986566:android:21623a14cf3b577b112d07",
+        "android_client_info": {
+          "package_name": "org.baole.oned"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "761859986566-jae8hitdn87mtcktt1pbgfddg42fismb.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "org.baole.oned",
+            "certificate_hash": "f232da729c0aa9ed18ee991291381eda7268da25"
+          }
+        },
+        {
+          "client_id": "761859986566-6h3p8g95tac1slrn1ptjlmujia88jjb8.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAdvRz1hTucEBGUWfrmyPNhIgzALKDZ8s4"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "761859986566-6h3p8g95tac1slrn1ptjlmujia88jjb8.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
