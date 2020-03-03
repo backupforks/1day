@@ -9,7 +9,7 @@ import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.Query
 import org.baole.oned.MainActivity
-import org.baole.oned.StoryEditorActivity
+import org.baole.oned.editor.StoryEditorActivity
 import org.baole.oned.model.Story
 import org.baole.oned.util.FirestoreUtil
 

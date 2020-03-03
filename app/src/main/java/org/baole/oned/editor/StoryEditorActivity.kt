@@ -1,4 +1,4 @@
-package org.baole.oned
+package org.baole.oned.editor
 
 import android.content.Context
 import android.content.Intent
@@ -6,6 +6,8 @@ import android.os.Bundle
 import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
+import android.view.View
+import android.view.ViewGroup
 import android.view.inputmethod.InputMethodManager
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.os.bundleOf
@@ -15,6 +17,10 @@ import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.FirebaseFirestore
 import io.noties.markwon.editor.MarkwonEditor
 import io.noties.markwon.editor.MarkwonEditorTextWatcher
+import org.baole.oned.DatePickerFragment
+import org.baole.oned.OnedApp
+import org.baole.oned.R
+import org.baole.oned.SettingActivity
 import org.baole.oned.databinding.StoryEditorActivityBinding
 import org.baole.oned.model.Story
 import org.baole.oned.story.StoryAdapterItem
@@ -23,7 +29,9 @@ import org.baole.oned.util.DateUtil
 import org.baole.oned.util.FirestoreUtil
 import org.baole.oned.util.StoryEditorEvent
 
+
 class StoryEditorActivity : AppCompatActivity() {
+    private var mKeyboardTopHeight: Int = 0
     private lateinit var mFirestore: FirebaseFirestore
     private lateinit var mBinding: StoryEditorActivityBinding
     lateinit var mStory: Story
@@ -31,6 +39,8 @@ class StoryEditorActivity : AppCompatActivity() {
     var mFirebaesUser: FirebaseUser? = null
     var mNewDay: String? = null
     lateinit var mStoryId: String
+    var mIsKeyboardOpen = false
+    var mIsKeyboardManualTrigger = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -45,14 +55,50 @@ class StoryEditorActivity : AppCompatActivity() {
     private fun setupEditor() {
         val editor = MarkwonEditor.create(OnedApp.sApp.mMarkwon)
         mBinding.editor.addTextChangedListener(MarkwonEditorTextWatcher.withProcess(editor))
+        mKeyboardTopHeight = resources.getDimensionPixelSize(R.dimen.keyboard_top_height)
+        KeyboardHeightProvider(this, windowManager, mBinding.root) { keyboardHeight, keyboardOpen, isLandscape ->
+            Log.i(TAG, "keyboardHeight: $keyboardHeight keyboardOpen: $keyboardOpen isLandscape: $isLandscape $mIsKeyboardManualTrigger")
+            if (keyboardOpen) {
+                setViewHeight(mBinding.keyboardRoot, keyboardHeight + mKeyboardTopHeight)
+                mBinding.keyboardRoot.visibility = View.VISIBLE
+                mBinding.keyboardView.visibility = View.VISIBLE
+            } else {
+                if (mIsKeyboardManualTrigger) {
+                    setViewHeight(mBinding.keyboardRoot, mKeyboardTopHeight)
+                    mBinding.keyboardView.visibility = View.GONE
+                } else {
+                    mBinding.keyboardRoot.visibility = View.GONE
+                }
+            }
+            mIsKeyboardManualTrigger = false
+            mIsKeyboardOpen = keyboardOpen
+        }
+
+        mBinding.actionKeyboard.setOnClickListener {
+            if (mIsKeyboardOpen) {
+                hideSoftKeyboard()
+            } else {
+                showSoftKeyboard()
+            }
+        }
+    }
+
+    private fun setViewHeight(keyboardRoot: ViewGroup, newHeight: Int) {
+        val params = mBinding.keyboardRoot.layoutParams
+        params.height = newHeight
+        mBinding.keyboardRoot.layoutParams = params
     }
 
     private fun setupSaveButton() {
-        mBinding.save.setOnClickListener {
+    }
+
+    override fun onPause() {
+        super.onPause()
+        mBinding.editor.text.toString().takeIf { it.trim().isNotEmpty() }?.let { story ->
             mStoryDocumentSnapshot?.let {
-                updateStory(it, mBinding.editor.text.toString())
+                updateStory(it, story)
             } ?: kotlin.run {
-                createStory(mBinding.editor.text.toString())
+                createStory(story)
             }
         }
     }
@@ -98,10 +144,23 @@ class StoryEditorActivity : AppCompatActivity() {
             mBinding.editor.setSelection(mBinding.editor.length())
         } ?: kotlin.run {
             setStory(Story(mNewDay ?: DateUtil.day2key(), ""))
-            mBinding.editor.requestFocus()
-            val imm = getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
-            imm.showSoftInput(mBinding.editor, 0)
+            showSoftKeyboard()
         }
+    }
+
+    private fun showSoftKeyboard() {
+        mIsKeyboardManualTrigger = true
+        Log.i(TAG, "showSoftKeyboard $mIsKeyboardManualTrigger")
+        mBinding.editor.requestFocus()
+        val imm = getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+        imm.showSoftInput(mBinding.editor, 0)
+    }
+
+    private fun hideSoftKeyboard() {
+        mIsKeyboardManualTrigger = true
+        Log.i(TAG, "hideSoftKeyboard $mIsKeyboardManualTrigger")
+        val imm = getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+        imm.hideSoftInputFromWindow(mBinding.editor.windowToken, 0)
     }
 
     private fun setStory(story: Story) {
@@ -114,13 +173,17 @@ class StoryEditorActivity : AppCompatActivity() {
         val story = Story(mStory.day, text)
         val documentReference = FirestoreUtil.story(mFirestore, mFirebaesUser).document()
         val task = documentReference.set(story)
-        if (isSignedIn()) {
-            finish()
-        } else {
-            task.addOnCompleteListener {
-                finish()
-            }.addOnFailureListener { it.printStackTrace() }
+        mStory = story
+        documentReference.addSnapshotListener { documentSnapshot, firebaseFirestoreException ->
+            mStoryDocumentSnapshot = documentSnapshot
         }
+//        if (isSignedIn()) {
+//            finish()
+//        } else {
+//            task.addOnCompleteListener {
+//                finish()
+//            }.addOnFailureListener { it.printStackTrace() }
+//        }
         AppState.get(this).markLastStoryTimestamp(DateUtil.key2date(mStory.day).time)
         OnedApp.sApp.mStoryObservable.setData(StoryEditorEvent(StoryEditorEvent.TYPE_ADDED, StoryAdapterItem(documentReference.id, story)))
     }
@@ -132,16 +195,17 @@ class StoryEditorActivity : AppCompatActivity() {
         } else if (newText != mStory.content) {
             val task = FirestoreUtil.day(mFirestore, mFirebaesUser, snapshot.id).update(mapOf(Story.FIELD_CONTENT to newText
             ))
-            if (isSignedIn()) {
-                finish()
-            } else {
-                task.addOnSuccessListener {
-                    finish()
-                }.addOnFailureListener {
-                    Log.d(TAG, "firestore: addOnCompleteListener")
-                    it.printStackTrace()
-                }
-            }
+            mStory.content = newText
+//            if (isSignedIn()) {
+//                finish()
+//            } else {
+//                task.addOnSuccessListener {
+//                    finish()
+//                }.addOnFailureListener {
+//                    Log.d(TAG, "firestore: addOnCompleteListener")
+//                    it.printStackTrace()
+//                }
+//            }
             OnedApp.sApp.mStoryObservable.setData(StoryEditorEvent(StoryEditorEvent.TYPE_UPDATED, StoryAdapterItem(snapshot.id, Story(mStory.day, newText))))
         } else {
             finish()

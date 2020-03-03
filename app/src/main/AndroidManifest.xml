@@ -22,7 +22,7 @@
             </intent-filter>
         </activity>
 
-        <activity android:name=".StoryEditorActivity" android:windowSoftInputMode="adjustResize|stateAlwaysVisible"/>
+        <activity android:name=".editor.StoryEditorActivity" android:windowSoftInputMode="adjustNothing|stateAlwaysVisible"/>
         <activity android:name=".SettingActivity" android:label="@string/settings"/>
     </application>
 

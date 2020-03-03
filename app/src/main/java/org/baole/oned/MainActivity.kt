@@ -13,6 +13,7 @@ import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.ListenerRegistration
 import org.baole.oned.databinding.MainActivityBinding
+import org.baole.oned.editor.StoryEditorActivity
 import org.baole.oned.model.Story
 import org.baole.oned.story.list.StoryListFragment
 import org.baole.oned.story.monthlist.MonthListFragment

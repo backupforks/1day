@@ -1,7 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    xmlns:tools="http://schemas.android.com/tools"
     android:orientation="vertical">
 
     <androidx.appcompat.widget.Toolbar
@@ -20,32 +22,38 @@
         android:paddingStart="15dp"
         android:paddingTop="5dp"
         android:paddingEnd="15dp"
+        android:background="@null"
         android:paddingBottom="10dp" />
 
     <LinearLayout
+        android:id="@+id/keyboard_root"
         android:layout_width="match_parent"
-        android:layout_height="40dp"
-        android:orientation="horizontal">
+        android:layout_height="wrap_content"
+        android:visibility="gone"
+        tools:visibility="visible"
+        android:orientation="vertical">
 
-        <androidx.appcompat.widget.AppCompatTextView
-            android:id="@+id/preview"
-            style="@style/TextAppearance.MaterialComponents.Body1"
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_weight="1"
-            android:gravity="center"
-            android:text="@string/preview"
-            android:visibility="gone" />
+        <LinearLayout
+            android:id="@+id/editorbar"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
 
-        <androidx.appcompat.widget.AppCompatTextView
-            android:id="@+id/save"
-            style="@style/TextAppearance.MaterialComponents.Body1"
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_weight="1"
-            android:gravity="center"
-            android:text="@string/save"
-            android:textAllCaps="true" />
+            <androidx.appcompat.widget.AppCompatImageView
+                android:id="@+id/action_keyboard"
+                android:layout_width="@dimen/keyboard_top_height"
+                android:layout_height="@dimen/keyboard_top_height"
+                app:tint="?attr/colorControlNormal"
+                android:background="?attr/selectableItemBackground"
+                app:srcCompat="@drawable/ic_keyboard_black_12dp" />
+        </LinearLayout>
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/keyboard_view"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+
     </LinearLayout>
+
 
 </LinearLayout>
