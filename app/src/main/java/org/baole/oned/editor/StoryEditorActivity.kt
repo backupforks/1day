@@ -50,7 +50,6 @@ class StoryEditorActivity : AppCompatActivity() {
         setContentView(mBinding.root)
         setupToolbar()
         setupFirestore()
-        setupSaveButton()
         setupEditor()
     }
 
@@ -65,10 +64,7 @@ class StoryEditorActivity : AppCompatActivity() {
                 mBinding.keyboardRoot.visibility = View.VISIBLE
                 mBinding.keyboardView.visibility = View.VISIBLE
             } else {
-                if (mIsKeyboardManualTrigger) {
-//                    setViewHeight(mBinding.keyboardRoot, mKeyboardTopHeight)
-//                    mBinding.keyboardView.visibility = View.GONE
-                } else {
+                if (!mIsKeyboardManualTrigger) {
                     mBinding.keyboardRoot.visibility = View.GONE
                 }
             }
@@ -76,9 +72,10 @@ class StoryEditorActivity : AppCompatActivity() {
             mIsKeyboardOpen = keyboardOpen
         }
 
-        mBinding.editorbar.layoutManager = LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false)
         val listener: (StoryEditText, Action) -> Unit = {view, action ->
             if (action is MarkdownAction) {
+                action.onAction(view)
+            } else if(action is ShortcutAction) {
                 action.onAction(view)
             } else {
                 if (action.id == 1) {
@@ -90,6 +87,7 @@ class StoryEditorActivity : AppCompatActivity() {
                 }
             }
         }
+        mBinding.editorbar.layoutManager = LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false)
         val editorBarAdapter = EditorActionAdapter(mBinding.editor, listener)
         mBinding.editorbar.adapter = editorBarAdapter
         editorBarAdapter.setActions(ActionManager.buildActionBar())
@@ -98,27 +96,12 @@ class StoryEditorActivity : AppCompatActivity() {
         val keyboardViewAdapter = EditorActionAdapter(mBinding.editor, listener)
         mBinding.keyboardView.adapter = keyboardViewAdapter
         keyboardViewAdapter.setActions(ActionManager.buildKeyboardTool())
-
-
-//        mBinding.actionKeyboard.setOnClickListener {
-//            if (mIsKeyboardOpen) {
-//                hideSoftKeyboard()
-//            } else {
-//                showSoftKeyboard()
-//            }
-//        }
-//        mBinding.actionBold.setOnClickListener {
-//            mBinding.editor.insertText("****", 2)
-//        }
     }
 
     private fun setViewHeight(keyboardRoot: ViewGroup, newHeight: Int) {
-        val params = mBinding.keyboardRoot.layoutParams
+        val params = keyboardRoot.layoutParams
         params.height = newHeight
         mBinding.keyboardRoot.layoutParams = params
-    }
-
-    private fun setupSaveButton() {
     }
 
     override fun onPause() {
