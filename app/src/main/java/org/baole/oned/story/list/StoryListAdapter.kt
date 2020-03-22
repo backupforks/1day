@@ -65,8 +65,7 @@ class StoryItemViewHolder(itemView: View, private val mFragment: StoryFragment) 
             val day = DateUtil.key2date(it.mStory.day)
             mBinding.day.text = SimpleDateFormat("dd").format(day)
             mBinding.month.text = SimpleDateFormat("MMM").format(day)
-            OnedApp.sApp.mMarkwon.setMarkdown(mBinding.content, it.mStory.content.trim())
-            mBinding.content.movementMethod = LinkMovementMethod.getInstance()
+            mBinding.content.setStory(story)
             itemView.tag = it
         }
     }

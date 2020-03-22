@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    xmlns:tools="http://schemas.android.com/tools"
     android:orientation="vertical">
 
     <androidx.appcompat.widget.Toolbar
@@ -11,27 +11,45 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content" />
 
-    <org.baole.oned.editor.StoryEditText
-        android:id="@+id/editor"
+    <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_weight="1"
-        android:gravity="top"
-        android:hint="@string/story_hint"
-        android:inputType="textAutoCorrect|textCapSentences|textLongMessage|textMultiLine"
-        android:paddingStart="15dp"
-        android:paddingTop="5dp"
-        android:paddingEnd="15dp"
-        android:background="@null"
-        android:paddingBottom="10dp" />
+        android:layout_weight="1">
+
+        <org.baole.oned.editor.StoryEditText
+            android:id="@+id/editor"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@null"
+            android:gravity="top"
+            android:hint="@string/story_hint"
+            android:inputType="textAutoCorrect|textCapSentences|textLongMessage|textMultiLine"
+            android:paddingStart="15dp"
+            android:paddingTop="5dp"
+            android:paddingEnd="15dp"
+            android:paddingBottom="10dp" />
+        <org.baole.oned.story.StoryTextView
+            android:layout_width="match_parent"
+            android:gravity="top"
+            android:id="@+id/preview_text"
+            android:visibility="invisible"
+            android:paddingStart="15dp"
+            android:paddingTop="5dp"
+            android:paddingEnd="15dp"
+            android:paddingBottom="10dp"
+            android:textSize="18sp"
+            style="@style/TextAppearance.MaterialComponents.Body1"
+            android:layout_height="match_parent"/>
+    </FrameLayout>
 
     <LinearLayout
         android:id="@+id/keyboard_root"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:orientation="vertical"
         android:visibility="gone"
-        tools:visibility="visible"
-        android:orientation="vertical">
+        tools:visibility="visible">
+
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/editorbar"
             android:layout_width="match_parent"
@@ -39,9 +57,9 @@
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/keyboard_view"
-            android:layout_marginTop="10dp"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content" />
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp" />
 
     </LinearLayout>
 

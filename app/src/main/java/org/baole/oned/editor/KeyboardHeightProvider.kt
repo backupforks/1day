@@ -13,6 +13,7 @@ import android.widget.PopupWindow
 
 class KeyboardHeightProvider(context: Context, windowManager: WindowManager, parentView: View, listener: (Int, Boolean, Boolean) -> Unit) : PopupWindow(context) {
     var mIsOpen = false
+
     init {
         val popupView = LinearLayout(context)
         popupView.layoutParams = LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT)
@@ -44,6 +45,10 @@ class KeyboardHeightProvider(context: Context, windowManager: WindowManager, par
         width = 1
         height = ViewGroup.LayoutParams.MATCH_PARENT
         setBackgroundDrawable(ColorDrawable(0))
-        parentView.post { showAtLocation(parentView, Gravity.NO_GRAVITY, 0, 0) }
+        parentView.post {
+            if (parentView.isAttachedToWindow) {
+                showAtLocation(parentView, Gravity.NO_GRAVITY, 0, 0)
+            }
+        }
     }
 }

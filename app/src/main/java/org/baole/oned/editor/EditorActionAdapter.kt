@@ -7,12 +7,12 @@ import androidx.recyclerview.widget.RecyclerView
 import org.baole.oned.R
 import org.baole.oned.databinding.StoryEditorActionHolderBinding
 
-class EditorActionAdapter(private val editor: StoryEditText, private val listener: ((StoryEditText, Action) -> Unit)) : RecyclerView.Adapter<EditorActionHolder>() {
+class EditorActionAdapter(private val editor: StoryEditText, private val listener: ((StoryEditText, Action) -> Unit), val layoutId: Int) : RecyclerView.Adapter<EditorActionHolder>() {
     private var actions = listOf<Action>()
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): EditorActionHolder {
         val inflater = LayoutInflater.from(parent.context)
-        return EditorActionHolder(editor, listener, inflater.inflate(R.layout.story_editor_action_holder, parent, false))
+        return EditorActionHolder(editor, listener, inflater.inflate(layoutId, parent, false))
     }
 
     override fun onBindViewHolder(holder: EditorActionHolder, position: Int) {

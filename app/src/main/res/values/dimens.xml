@@ -1,4 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <dimen name="keyboard_top_height">25dp</dimen>
+    <dimen name="keyboard_top_height">30dp</dimen>
+    <dimen name="keyboard_item_height">40dp</dimen>
 </resources>

@@ -15,7 +15,7 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <androidx.appcompat.widget.AppCompatTextView
+    <org.baole.oned.story.StoryTextView
         android:id="@+id/content"
         style="@style/TextAppearance.MaterialComponents.Body1"
         android:layout_width="0dp"

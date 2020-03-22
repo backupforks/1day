@@ -64,8 +64,7 @@ class StoryItemViewHolder(itemView: View, private val mFragment: StoryFragment) 
         (story as StoryAdapterItem).let {
             val day = DateUtil.key2date(it.mStory.day)
             mBinding.day.text = SimpleDateFormat.getDateInstance(SimpleDateFormat.MEDIUM).format(day)
-//            binding.content.text = TextUtil.markdown2text(it.mStory.content.trim())
-            OnedApp.sApp.mMarkwon.setMarkdown(mBinding.content, it.mStory.content.trim())
+            mBinding.content.setStory(story)
             itemView.tag = it
         }
     }

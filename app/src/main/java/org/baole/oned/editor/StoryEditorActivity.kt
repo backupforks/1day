@@ -35,7 +35,7 @@ import org.baole.oned.util.StoryEditorEvent
 class StoryEditorActivity : AppCompatActivity() {
     private var mKeyboardTopHeight: Int = 0
     private lateinit var mFirestore: FirebaseFirestore
-    private lateinit var mBinding: StoryEditorActivityBinding
+    lateinit var mBinding: StoryEditorActivityBinding
     lateinit var mStory: Story
     var mStoryDocumentSnapshot: DocumentSnapshot? = null
     var mFirebaesUser: FirebaseUser? = null
@@ -43,6 +43,7 @@ class StoryEditorActivity : AppCompatActivity() {
     lateinit var mStoryId: String
     var mIsKeyboardOpen = false
     var mIsKeyboardManualTrigger = false
+    var mIsEditing = true
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -54,6 +55,7 @@ class StoryEditorActivity : AppCompatActivity() {
     }
 
     private fun setupEditor() {
+
         val editor = MarkwonEditor.create(OnedApp.sApp.mMarkwon)
         mBinding.editor.addTextChangedListener(MarkwonEditorTextWatcher.withProcess(editor))
         mKeyboardTopHeight = resources.getDimensionPixelSize(R.dimen.keyboard_top_height)
@@ -73,29 +75,17 @@ class StoryEditorActivity : AppCompatActivity() {
         }
 
         val listener: (StoryEditText, Action) -> Unit = {view, action ->
-            if (action is MarkdownAction) {
-                action.onAction(view)
-            } else if(action is ShortcutAction) {
-                action.onAction(view)
-            } else {
-                if (action.id == 1) {
-                    if (mIsKeyboardOpen) {
-                        hideSoftKeyboard()
-                    } else {
-                        showSoftKeyboard()
-                    }
-                }
-            }
+            action.onAction(this)
         }
         mBinding.editorbar.layoutManager = LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false)
-        val editorBarAdapter = EditorActionAdapter(mBinding.editor, listener)
+        val editorBarAdapter = EditorActionAdapter(mBinding.editor, listener, R.layout.story_editor_action_holder)
         mBinding.editorbar.adapter = editorBarAdapter
-        editorBarAdapter.setActions(ActionManager.buildActionBar())
+        editorBarAdapter.setActions(ActionManager.buildActionBar(this))
 
         mBinding.keyboardView.layoutManager = GridLayoutManager(this, 5)
-        val keyboardViewAdapter = EditorActionAdapter(mBinding.editor, listener)
+        val keyboardViewAdapter = EditorActionAdapter(mBinding.editor, listener, R.layout.story_editor_keyboard_holder)
         mBinding.keyboardView.adapter = keyboardViewAdapter
-        keyboardViewAdapter.setActions(ActionManager.buildKeyboardTool())
+        keyboardViewAdapter.setActions(ActionManager.buildKeyboardTool(this))
     }
 
     private fun setViewHeight(keyboardRoot: ViewGroup, newHeight: Int) {
@@ -139,7 +129,18 @@ class StoryEditorActivity : AppCompatActivity() {
             }
             newFragment.show(supportFragmentManager, "datePicker")
         }
+
+        supportActionBar?.let {
+            it.setDisplayHomeAsUpEnabled(true)
+            it.setDisplayShowHomeEnabled(true)
+        }
     }
+
+    override fun onSupportNavigateUp(): Boolean {
+        onBackPressed()
+        return true
+    }
+
     private fun onDaySelected(day: String) {
         mNewDay = day
         FirestoreUtil.dayQuery(mFirestore, mFirebaesUser, day).addSnapshotListener { querySnapshot, firebaseFirestoreException ->
@@ -151,16 +152,16 @@ class StoryEditorActivity : AppCompatActivity() {
         if (isFinishing) return
         mStoryDocumentSnapshot = documentSnapshot
         mStoryDocumentSnapshot?.toObject(Story::class.java)?.let {
-            setStory(it)
+            setStory(it, true)
             mStory = it
             mBinding.editor.setSelection(mBinding.editor.length())
         } ?: kotlin.run {
-            setStory(Story(mNewDay ?: DateUtil.day2key(), ""))
+            setStory(Story(mNewDay ?: DateUtil.day2key(), ""), false)
             showSoftKeyboard()
         }
     }
 
-    private fun showSoftKeyboard() {
+    fun showSoftKeyboard() {
         mIsKeyboardManualTrigger = true
         Log.i(TAG, "showSoftKeyboard $mIsKeyboardManualTrigger")
         mBinding.editor.requestFocus()
@@ -168,17 +169,19 @@ class StoryEditorActivity : AppCompatActivity() {
         imm.showSoftInput(mBinding.editor, 0)
     }
 
-    private fun hideSoftKeyboard() {
+    fun hideSoftKeyboard() {
         mIsKeyboardManualTrigger = true
         Log.i(TAG, "hideSoftKeyboard $mIsKeyboardManualTrigger")
         val imm = getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
         imm.hideSoftInputFromWindow(mBinding.editor.windowToken, 0)
     }
 
-    private fun setStory(story: Story) {
+    private fun setStory(story: Story, isEditing: Boolean) {
         mStory = story
         title = DateUtil.key2display(story.day)
         mBinding.editor.setText(story.content)
+        mIsEditing = isEditing
+        updateIsEditing()
     }
 
     private fun createStory(text: String) {
@@ -230,6 +233,11 @@ class StoryEditorActivity : AppCompatActivity() {
         return super.onCreateOptionsMenu(menu)
     }
 
+    override fun onPrepareOptionsMenu(menu: Menu?): Boolean {
+        menu?.findItem(R.id.menu_preview)?.setIcon(if (mIsEditing) R.drawable.ic_preview else R.drawable.ic_mode_edit_black_24dp)
+        return super.onPrepareOptionsMenu(menu)
+    }
+
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
             R.id.menu_clear -> {
@@ -242,8 +250,29 @@ class StoryEditorActivity : AppCompatActivity() {
             R.id.menu_settings -> {
                 startActivity(Intent(this, SettingActivity::class.java))
             }
+
+            R.id.menu_preview -> {
+                mIsEditing = !mIsEditing
+                updateIsEditing()
+            }
+
+
         }
         return super.onOptionsItemSelected(item)
+    }
+
+    private fun updateIsEditing() {
+        if (mIsEditing) {
+            mBinding.previewText.visibility = View.INVISIBLE
+            mBinding.editor.visibility = View.VISIBLE
+            mBinding.previewText.setStoryText("")
+        } else {
+            mBinding.previewText.visibility = View.VISIBLE
+            mBinding.editor.visibility = View.INVISIBLE
+            mBinding.previewText.setStoryText(mBinding.editor.text?.toString() ?: "")
+        }
+        invalidateOptionsMenu()
+
     }
 
     private fun deleteStory() {
