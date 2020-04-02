@@ -14,26 +14,26 @@ class EditorActionView @JvmOverloads constructor(
         context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0
 ) : AppCompatTextView(context, attrs, defStyleAttr) {
 
-    private var listener: ((StoryEditText, Action) -> Unit)? = null
-    private lateinit var action: Action
-    private lateinit var editor: StoryEditText
+    private var mListener: ((StoryEditText, Action) -> Unit)? = null
+    private lateinit var mAction: Action
+    private lateinit var mEditor: StoryEditText
 
     init {
         setOnClickListener {
-            if (::action.isInitialized) {
-                listener?.invoke(editor, action)
+            if (::mAction.isInitialized) {
+                mListener?.invoke(mEditor, mAction)
             }
         }
     }
 
     fun setActionListener(listener: (StoryEditText, Action) -> Unit) {
-        this.listener = listener
+        this.mListener = listener
     }
 
     open fun bind(editor: StoryEditText, action: Action) {
-        this.action = action
-        this.editor = editor
-        when (action.type) {
+        this.mAction = action
+        this.mEditor = editor
+        when (action.mType) {
             Action.TYPE_ICON -> {
                 bindIcon()
             }
@@ -50,23 +50,23 @@ class EditorActionView @JvmOverloads constructor(
     }
 
     private fun bindText() {
-        val spanText = SpannableString(listOf(action.label ?: "", action.subLabel
+        val spanText = SpannableString(listOf(mAction.mLabel ?: "", mAction.mSubLabel
                 ?: "").joinToString(""))
         var labelLength = 0
 
-        action.label?.let {
+        mAction.mLabel?.let {
             labelLength = it.length
             spanText.setSpan(ForegroundColorSpan(Color.parseColor("#aaaaaa")), 0, labelLength, 0)
             spanText.setSpan(RelativeSizeSpan(1.5f), 0, labelLength, 0)
         }
 
-        action.subLabel?.let {
+        mAction.mSubLabel?.let {
             spanText.setSpan(SubscriptSpan(), labelLength, labelLength + it.length, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
         }
         text = spanText
     }
 
     private fun bindIcon() {
-        setCompoundDrawablesWithIntrinsicBounds(action.iconId, 0, 0, 0)
+        setCompoundDrawablesWithIntrinsicBounds(mAction.mIconId, 0, 0, 0)
     }
 }

@@ -5,7 +5,7 @@ import android.content.Context
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 
-abstract class StoryAdapter<VH : RecyclerView.ViewHolder>(private val context: Context) : RecyclerView.Adapter<VH>() {
+abstract class StoryAdapter<VH : RecyclerView.ViewHolder>(private val mContext: Context) : RecyclerView.Adapter<VH>() {
     private var mStories = listOf<StoryAdapterData>()
 
     fun setStories(stories: List<StoryAdapterData>) {
@@ -25,7 +25,7 @@ abstract class StoryAdapter<VH : RecyclerView.ViewHolder>(private val context: C
     }
 
     override fun getItemViewType(position: Int): Int {
-        return mStories[position].type
+        return mStories[position].mType
     }
 
     companion object {

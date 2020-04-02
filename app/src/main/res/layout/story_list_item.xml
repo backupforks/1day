@@ -44,6 +44,8 @@
             android:paddingEnd="10dp"
             android:clickable="false"
             android:linksClickable="false"
+            android:maxLines="10"
+            android:ellipsize="end"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toEndOf="@+id/day"
             app:layout_constraintTop_toTopOf="parent" />

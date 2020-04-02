@@ -10,10 +10,10 @@ class MonthListAdapter(fragment: MonthListFragment) : FragmentStateAdapter(fragm
     companion object {
         const val PAGES = 50
     }
-    private val titleFormatter = SimpleDateFormat("MMM dd")
-    private val titleFullFormatter = SimpleDateFormat.getDateInstance(SimpleDateFormat.MEDIUM)
+    private val mTitleFormatter = SimpleDateFormat("MMM dd")
+    private val mTitleFullFormatter = SimpleDateFormat.getDateInstance(SimpleDateFormat.MEDIUM)
 
-    private val year: Int = Calendar.getInstance().get(Calendar.YEAR)
+    private val mYear: Int = Calendar.getInstance().get(Calendar.YEAR)
 
     override fun getItemCount(): Int {
         return PAGES
@@ -35,6 +35,6 @@ class MonthListAdapter(fragment: MonthListFragment) : FragmentStateAdapter(fragm
 
     fun getTitle(position: Int): String {
         val date = getDate(position)
-        return if (date.get(Calendar.YEAR) == year) titleFormatter.format(date.time) else titleFullFormatter.format(date.time)
+        return if (date.get(Calendar.YEAR) == mYear) mTitleFormatter.format(date.time) else mTitleFullFormatter.format(date.time)
     }
 }

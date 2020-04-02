@@ -1,11 +1,9 @@
 package org.baole.oned.story.list
 
-import android.text.method.LinkMovementMethod
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
-import org.baole.oned.OnedApp
 import org.baole.oned.R
 import org.baole.oned.databinding.StoryListItemBinding
 import org.baole.oned.story.*
@@ -15,7 +13,7 @@ import java.text.SimpleDateFormat
 /**
  * RecyclerView adapter for a list of story.
  */
-class StoryListAdapter(private val mFragment: StoryFragment, private val viewModel: StoryViewModel) :
+class StoryListAdapter(private val mFragment: StoryFragment, private val mViewModel: StoryViewModel) :
         StoryAdapter<StoryViewHolder>(mFragment.requireContext()) {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): StoryViewHolder {
@@ -30,7 +28,7 @@ class StoryListAdapter(private val mFragment: StoryFragment, private val viewMod
     override fun onBindViewHolder(holder: StoryViewHolder, position: Int) {
         holder.bind(getStory(position))
         if (position == itemCount - 1) {
-            viewModel.loadNext()
+            mViewModel.loadNext()
         }
     }
 }
@@ -40,11 +38,11 @@ open class StoryViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
 
 }
 
-class StoryHeaderViewHolder(itemView: View, private val fragment: StoryFragment) : StoryViewHolder(itemView) {
+class StoryHeaderViewHolder(itemView: View, private val mFragment: StoryFragment) : StoryViewHolder(itemView) {
     init {
 
         itemView.setOnClickListener {
-            fragment.editStory()
+            mFragment.editStory()
         }
     }
 }

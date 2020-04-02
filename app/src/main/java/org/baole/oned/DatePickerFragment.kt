@@ -11,7 +11,7 @@ import java.util.*
 
 class DatePickerFragment : DialogFragment(), DatePickerDialog.OnDateSetListener {
 
-    var onKeySelected: ((String) -> Unit)? = null
+    var mOnKeySelected: ((String) -> Unit)? = null
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
         // Use the current date as the default date in the picker
@@ -29,6 +29,6 @@ class DatePickerFragment : DialogFragment(), DatePickerDialog.OnDateSetListener 
     }
 
     override fun onDateSet(view: DatePicker, year: Int, month: Int, day: Int) {
-        onKeySelected?.invoke(DateUtil.day2key(year, month + 1, day))
+        mOnKeySelected?.invoke(DateUtil.day2key(year, month + 1, day))
     }
 }

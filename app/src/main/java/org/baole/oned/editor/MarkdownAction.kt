@@ -3,18 +3,23 @@ package org.baole.oned.editor
 import android.content.Context
 import android.view.inputmethod.InputMethodManager
 
-class MarkdownAction(editor: StoryEditorActivity, id: Int, private val pattern: String, private val explain: String?= null, val condition: Int = CONDITION_NOTHING, private val moveForwardCursor: Int = 0, label: String? = null, subLabel: String? = null, iconId: Int = 0, type: Int = TYPE_TEXT) :
-        Action(editor, id, label, subLabel, iconId, type) {
+class MarkdownAction(mEditor: StoryEditorActivity, mId: Int, private val mPattern: String, private val mExplain: String?= null, private val mCondition: Int = CONDITION_NOTHING,
+                     private val mMoveForwardCursor: Int = 0, mLabel: String? = null, mSubLabel: String? = null, mIconId: Int = 0, mType: Int = TYPE_TEXT) :
+        Action(mEditor, mId, mLabel, mSubLabel, mIconId, mType) {
     override fun onAction(editor: StoryEditorActivity) {
-        editor.mBinding.editor.insertText(pattern, moveForwardCursor)
+        when(mCondition) {
+            CONDITION_LINE_BREAK -> editor.mBinding.editor.startNewLineIfNeeded()
+            else -> {}
+        }
+
+        editor.mBinding.editor.insertText(mPattern, mMoveForwardCursor)
         val imm = editor.mBinding.editor.context.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
         imm.showSoftInput(editor.mBinding.editor, 0)
     }
 
     companion object {
         const val CONDITION_NOTHING = 0
-        const val CONDITION_SPACE = 1
-        const val CONDITION_LINE_BREAK = 2
+        const val CONDITION_LINE_BREAK = 1
 
     }
 }

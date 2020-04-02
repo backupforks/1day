@@ -1,6 +1,7 @@
 package org.baole.oned.editor
 
-abstract class Action(val editor: StoryEditorActivity, val id: Int, val label: String?=null, val subLabel: String? = null, val iconId: Int = 0, val type: Int = TYPE_TEXT) {
+abstract class Action(val mEditor: StoryEditorActivity, val mId: Int, val mLabel: String?=null,
+                      val mSubLabel: String? = null, val mIconId: Int = 0, val mType: Int = TYPE_TEXT) {
     companion object {
         const val TYPE_TEXT = 0
         const val TYPE_ICON = 1

@@ -124,7 +124,7 @@ class StoryEditorActivity : AppCompatActivity() {
         mBinding.toolbar.setOnClickListener {
             val newFragment = DatePickerFragment()
             newFragment.arguments = bundleOf(Story.FIELD_DAY to mStory.day)
-            newFragment.onKeySelected = {
+            newFragment.mOnKeySelected = {
                 onDaySelected(it)
             }
             newFragment.show(supportFragmentManager, "datePicker")
@@ -152,11 +152,11 @@ class StoryEditorActivity : AppCompatActivity() {
         if (isFinishing) return
         mStoryDocumentSnapshot = documentSnapshot
         mStoryDocumentSnapshot?.toObject(Story::class.java)?.let {
-            setStory(it, true)
+            setStory(it, false)
             mStory = it
             mBinding.editor.setSelection(mBinding.editor.length())
         } ?: kotlin.run {
-            setStory(Story(mNewDay ?: DateUtil.day2key(), ""), false)
+            setStory(Story(mNewDay ?: DateUtil.day2key(), ""), true)
             showSoftKeyboard()
         }
     }
@@ -169,11 +169,13 @@ class StoryEditorActivity : AppCompatActivity() {
         imm.showSoftInput(mBinding.editor, 0)
     }
 
-    fun hideSoftKeyboard() {
-        mIsKeyboardManualTrigger = true
+    fun hideSoftKeyboard(manual: Boolean = true) {
+        mIsKeyboardManualTrigger = manual
         Log.i(TAG, "hideSoftKeyboard $mIsKeyboardManualTrigger")
         val imm = getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
         imm.hideSoftInputFromWindow(mBinding.editor.windowToken, 0)
+
+
     }
 
     private fun setStory(story: Story, isEditing: Boolean) {
@@ -192,13 +194,6 @@ class StoryEditorActivity : AppCompatActivity() {
         documentReference.addSnapshotListener { documentSnapshot, firebaseFirestoreException ->
             mStoryDocumentSnapshot = documentSnapshot
         }
-//        if (isSignedIn()) {
-//            finish()
-//        } else {
-//            task.addOnCompleteListener {
-//                finish()
-//            }.addOnFailureListener { it.printStackTrace() }
-//        }
         AppState.get(this).markLastStoryTimestamp(DateUtil.key2date(mStory.day).time)
         OnedApp.sApp.mStoryObservable.setData(StoryEditorEvent(StoryEditorEvent.TYPE_ADDED, StoryAdapterItem(documentReference.id, story)))
     }
@@ -211,16 +206,6 @@ class StoryEditorActivity : AppCompatActivity() {
             val task = FirestoreUtil.day(mFirestore, mFirebaesUser, snapshot.id).update(mapOf(Story.FIELD_CONTENT to newText
             ))
             mStory.content = newText
-//            if (isSignedIn()) {
-//                finish()
-//            } else {
-//                task.addOnSuccessListener {
-//                    finish()
-//                }.addOnFailureListener {
-//                    Log.d(TAG, "firestore: addOnCompleteListener")
-//                    it.printStackTrace()
-//                }
-//            }
             OnedApp.sApp.mStoryObservable.setData(StoryEditorEvent(StoryEditorEvent.TYPE_UPDATED, StoryAdapterItem(snapshot.id, Story(mStory.day, newText))))
         } else {
             finish()
@@ -266,10 +251,13 @@ class StoryEditorActivity : AppCompatActivity() {
             mBinding.previewText.visibility = View.INVISIBLE
             mBinding.editor.visibility = View.VISIBLE
             mBinding.previewText.setStoryText("")
+            mBinding.editor.requestFocus()
+            showSoftKeyboard()
         } else {
             mBinding.previewText.visibility = View.VISIBLE
             mBinding.editor.visibility = View.INVISIBLE
             mBinding.previewText.setStoryText(mBinding.editor.text?.toString() ?: "")
+            hideSoftKeyboard(false)
         }
         invalidateOptionsMenu()
 

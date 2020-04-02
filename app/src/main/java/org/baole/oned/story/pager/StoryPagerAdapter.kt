@@ -4,7 +4,6 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
-import org.baole.oned.OnedApp
 import org.baole.oned.R
 import org.baole.oned.databinding.StoryPagerItemBinding
 import org.baole.oned.story.*
@@ -14,7 +13,7 @@ import java.text.SimpleDateFormat
 /**
  * RecyclerView adapter for a list of story.
  */
-class StoryPagerAdapter(private val mFragment: StoryFragment, private val viewModel: StoryViewModel) :
+class StoryPagerAdapter(private val mFragment: StoryFragment, private val mViewModel: StoryViewModel) :
         StoryAdapter<StoryViewHolder>(mFragment.requireContext()) {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): StoryViewHolder {
@@ -29,7 +28,7 @@ class StoryPagerAdapter(private val mFragment: StoryFragment, private val viewMo
     override fun onBindViewHolder(holder: StoryViewHolder, position: Int) {
         holder.bind(getStory(position))
         if (position == itemCount - 1) {
-            viewModel.loadNext()
+            mViewModel.loadNext()
         }
     }
 

@@ -1,17 +1,16 @@
 package org.baole.oned.editor
 
-class EditorAction(editor: StoryEditorActivity, id: Int, label: String? = null, subLabel: String? = null, iconId: Int = 0, type: Int = TYPE_TEXT) :
-        Action(editor, id, label, subLabel, iconId, type) {
+class EditorAction(mEditor: StoryEditorActivity, mId: Int, mLabel: String? = null, mSubLabel: String? = null, mIconId: Int = 0, mType: Int = TYPE_TEXT) :
+        Action(mEditor, mId, mLabel, mSubLabel, mIconId, mType) {
 
     init {
-        editor.mBinding.editor.addOnEditorChangedListener {
+        mEditor.mBinding.editor.addOnEditorChangedListener {
             onEditorChanged(it)
         }
-
     }
 
     private fun onEditorChanged(edit: StoryEditText) {
-        when (id) {
+        when (mId) {
             1 -> {
 
             }
@@ -25,7 +24,7 @@ class EditorAction(editor: StoryEditorActivity, id: Int, label: String? = null, 
     }
 
     override fun onAction(editor: StoryEditorActivity) {
-        when (id) {
+        when (mId) {
             1 -> {
                 if (editor.mIsKeyboardOpen) {
                     editor.hideSoftKeyboard()

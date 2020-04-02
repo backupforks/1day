@@ -45,7 +45,7 @@ class StoryViewModel : ViewModel() {
     private var mRegistration: ListenerRegistration? = null
     private var mStories = mutableListOf<StoryAdapterItem>()
     private val mStoriesMap = mutableMapOf<String, StoryAdapterItem>()
-    private var hasNext = false
+    private var mHasNext = false
     private var mLastSnapshot: DocumentSnapshot? = null
 
     private val mSnapshots = ArrayList<DocumentSnapshot>()
@@ -117,7 +117,7 @@ class StoryViewModel : ViewModel() {
     private fun onSnapshot(querySnapshot: QuerySnapshot?, firebaseFirestoreException: FirebaseFirestoreException?) {
         val storyCount = querySnapshot?.documents?.size ?: 0
         Log.d(TAG, "onSnapshot ${storyCount}")
-        hasNext = storyCount >= mLimit
+        mHasNext = storyCount >= mLimit
         val lastSize = mStories.size
         var addedItemCount = 0
         querySnapshot?.documents?.forEach {
@@ -142,7 +142,7 @@ class StoryViewModel : ViewModel() {
     }
 
     fun loadNext() {
-        if (hasNext) {
+        if (mHasNext) {
             mQuery.startAt(mStories.last().mStory.day).addSnapshotListener { querySnapshot, firebaseFirestoreException ->
                 onSnapshot(querySnapshot, firebaseFirestoreException)
             }

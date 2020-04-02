@@ -25,6 +25,28 @@ android {
         multiDexEnabled true
         vectorDrawables.useSupportLibrary true
     }
+
+
+    if (new File("../../keystore2.properties").exists()) {
+        Properties props = new Properties()
+        props.load(new FileInputStream("../../keystore2.properties"))
+
+        signingConfigs {
+            release {
+                storeFile file(props['key.store'])
+                storePassword props['key.store.password']
+                keyAlias props['key.alias']
+                keyPassword props['key.store.password']
+            }
+        }
+    } else {
+        signingConfigs {
+            release {
+            }
+        }
+    }
+
+
     buildTypes {
         release {
             minifyEnabled false

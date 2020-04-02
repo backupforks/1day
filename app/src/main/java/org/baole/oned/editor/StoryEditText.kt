@@ -39,6 +39,14 @@ class StoryEditText: AppCompatEditText {
         mOnEditorChangedListeners.add(listener)
     }
 
+    fun startNewLineIfNeeded() {
+        selectionStart.coerceAtLeast(0).takeIf { it > 0 }?.let { index ->
+            text?.get(index - 1)?.takeIf { it != '\n' }?.let {
+                insertText("\n", 1)
+            }
+        }
+    }
+
     fun insertText(input: String, moveForwardCursor: Int = 0) {
         val start = selectionStart.coerceAtLeast(0)
         val end = selectionEnd.coerceAtLeast(0)

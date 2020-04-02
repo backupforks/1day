@@ -2,7 +2,7 @@ package org.baole.oned.story
 
 import org.baole.oned.model.Story
 
-open class StoryAdapterData(val type: Int) {
+open class StoryAdapterData(val mType: Int) {
 
     companion object {
         const val ITEM_TYPE_HEADER = 0

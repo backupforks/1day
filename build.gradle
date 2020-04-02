@@ -7,7 +7,7 @@ buildscript {
     ext.compile_sdk = 29
     ext.target_sdk = 29
     ext.min_sdk = 21
-    ext.app_verion_major = "0.9"
+    ext.app_verion_major = "0.1"
     ext.markwon_version ='4.2.2'
 
     repositories {
@@ -15,7 +15,7 @@ buildscript {
         jcenter()
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:3.6.0'
+        classpath 'com.android.tools.build:gradle:3.6.1'
         classpath 'com.google.gms:google-services:4.3.3'
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
     }
