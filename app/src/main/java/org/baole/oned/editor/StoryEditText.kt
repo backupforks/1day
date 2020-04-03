@@ -4,6 +4,7 @@ import android.content.Context
 import android.text.Editable
 import android.text.TextWatcher
 import android.util.AttributeSet
+import android.util.Log
 import androidx.appcompat.widget.AppCompatEditText
 import org.baole.oned.OnedApp
 
@@ -50,9 +51,17 @@ class StoryEditText: AppCompatEditText {
     fun insertText(input: String, moveForwardCursor: Int = 0) {
         val start = selectionStart.coerceAtLeast(0)
         val end = selectionEnd.coerceAtLeast(0)
+        Log.i(StoryEditText::class.java.simpleName, "selection: $start -> $end")
         text?.let {
-            it.replace(start.coerceAtMost(end), start.coerceAtLeast(end), input, 0, input.length)
-            setSelection(start + moveForwardCursor)
+            if (start == end || moveForwardCursor == 0) {
+                it.replace(start, end, input)
+                setSelection(start + moveForwardCursor)
+            } else {
+                it.replace(start, start, input.substring(0, moveForwardCursor))
+                val newEnd = end + moveForwardCursor
+                it.replace(newEnd, newEnd, input.substring(moveForwardCursor))
+                setSelection(newEnd)
+            }
         }
     }
 
